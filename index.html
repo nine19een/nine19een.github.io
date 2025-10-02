@@ -191,9 +191,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2025-10-02 16:05:52 / Modified: 21:35:06" itemprop="dateCreated datePublished" datetime="2025-10-02T16:05:52+08:00">2025-10-02</time>
+      <time title="Created: 2025-10-02 16:05:52" itemprop="dateCreated datePublished" datetime="2025-10-02T16:05:52+08:00">2025-10-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2025-10-03 03:25:36" itemprop="dateModified" datetime="2025-10-03T03:25:36+08:00">2025-10-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -371,9 +377,28 @@
 </details>
 
 <ul>
-<li><strong>实现细节注意：</strong><br>在正向遍历计算左逆序对时，<code>ans_a[i] += i - query(idx, cnt_c);</code> 这个操作是在 <code>update</code> <strong>之前</strong>执行的。此时 <code>i</code> 代表 <code>[0, i-1]</code> 区间的已处理元素数量，<code>query(idx, cnt_c)</code> 代表这些元素中值小于等于 <code>a[i]</code> 的数量。二者相减，即为值大于 <code>a[i]</code> 的数量。</li>
+<li><p><strong>实现细节注意：正向与反向遍历的逻辑对称性</strong></p>
+<p>我代码中的两次遍历，在 <code>update</code> 和 <code>query</code> 的顺序与逻辑上，展现了一种精妙的对称性，值得在此详细剖析。</p>
+<ol>
+<li><p><strong>正向遍历 (计算左逆序对): “先改后查”</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">    <span class="type">int</span> idx = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), a[i]) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">update</span>(idx, <span class="number">1</span>, size, cnt_c);</span><br><span class="line">    ans_a[i] += i + <span class="number">1</span> - <span class="built_in">query</span>(idx, cnt_c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>执行顺序</strong>:<br>先将当前元素 <code>a[i]</code> 加入树状数组 (<code>update</code>)，再进行查询 (<code>query</code>)。</li>
+<li><strong>逻辑解读</strong>:<br><code>query(idx, cnt_c)</code> 查询的是<strong>包含 <code>a[i]</code> 自身在内</strong>的、<code>[0, i]</code> 区间中值小于等于 <code>a[i]</code> 的元素数量。因此，用已处理的总数 <code>i + 1</code> 减去它，就得到了 <code>[0, i]</code> 区间内值大于 <code>a[i]</code> 的数量。由于元素不可能大于自身，该结果精确等价于 <code>a[i]</code> 的左逆序对数。</li>
 </ul>
-<p>最后附上我做题时的杂乱草稿（</p>
+</li>
+<li><p><strong>反向遍历 (计算右逆序对): “先查后改”</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = n - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">    <span class="type">int</span> idx = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), a[i]) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">    ans_a[i] += <span class="built_in">query</span>(idx - <span class="number">1</span>, cnt_c);</span><br><span class="line">    <span class="built_in">update</span>(idx, <span class="number">1</span>, size, cnt_c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>执行顺序</strong>:<br>先进行查询 (<code>query</code>)，再将当前元素 <code>a[i]</code> 加入树状数组 (<code>update</code>)。</li>
+<li><strong>逻辑解读</strong>:<br><code>query(idx - 1, cnt_c)</code> 查询的是<strong>在 <code>a[i]</code> 被加入之前</strong>，树状数组中已有的（即 <code>[i+1, n-1]</code> 区间内的）元素里，排名严格小于 <code>idx</code>（即值严格小于 <code>a[i]</code>）的数量。这直接就是 <code>a[i]</code> 的右逆序对数。</li>
+</ul>
+</li>
+</ol>
+<p><strong>对比总结：</strong><br>正向遍历采用“先改后查”的策略，通过总数减法巧妙地排除了自身的影响；而反向遍历则采用“先查后改”的策略，直接查询所需的结果。两者虽然实现顺序相反，但都最终达成了正确的计算目的，体现了算法实现的灵活性。</p>
+</li>
+</ul>
+<p><strong>P.S.</strong> 最后附上我做题时的杂乱草稿（</p>
 <img src="/2025/10/02/Luogu-P8613-Review/4.jpg" class="" title="做题草稿">
 
 <hr>
