@@ -128,7 +128,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -137,7 +137,7 @@
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -154,6 +154,201 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/10/13/K-InversePairs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/10/13/K-InversePairs/" class="post-title-link" itemprop="url">逆序k倍对·复盘</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-10-13 01:49:00 / Modified: 02:27:24" itemprop="dateCreated datePublished" datetime="2025-10-13T01:49:00+08:00">2025-10-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E8%A7%A3-%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">算法题解/复盘</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本题同样由那位BUAA大佬分享。</p>
+<p>不久前，我用<strong>树状数组</strong>解决了洛谷上的<a target="_blank" rel="noopener" href="https://www.luogu.com.cn/problem/P1908">逆序对模板题</a> 。因此，当我初见这道 <strong>逆序 k 倍对</strong> 时，第一反应便是：这一定是模板的变体，核心工具依然是那个熟悉的树状数组。然而，从模板代码到这道题的AC，并非简单的复制粘贴，而是一段充满思考的<strong>魔改</strong>之旅。本文旨在完整复盘，我是如何基于逆序对模板的思路，一步步识别问题差异、调整关键逻辑，最终将一份模板代码成功改造为本题的解答。</p>
+<hr>
+<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p>给定一个序列 a₁, a₂, …, aₙ 和一个正整数 k，如果 <code>1 ≤ i &lt; j ≤ n</code> 且 <code>aᵢ &gt; k · aⱼ</code>，我们就将 <code>(i, j)</code> 称作一个<strong>逆序 k 倍对</strong>。请你计算序列中逆序 k 倍对的个数。</p>
+<h3 id="输入格式"><a href="#输入格式" class="headerlink" title="输入格式"></a>输入格式</h3><p>第一行两个正整数 n, k (1 ≤ n ≤ 10⁵, 1 ≤ k ≤ 10)。<br>第二行 n 个正整数 a₁, a₂, …, aₙ (1 ≤ aᵢ &lt; 2³¹)。<br>为了提高区分度，对于得分占比 10% 的测试点，我们保证 1 ≤ n ≤ 100。</p>
+<h3 id="输出格式"><a href="#输出格式" class="headerlink" title="输出格式"></a>输出格式</h3><p>一行一个非负整数，表示序列中逆序 k 倍对的个数。</p>
+<h3 id="输入样例"><a href="#输入样例" class="headerlink" title="输入样例"></a>输入样例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">5 2</span><br><span class="line">5 4 3 2 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="输出样例"><a href="#输出样例" class="headerlink" title="输出样例"></a>输出样例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><p>首先肯定要从那道经典的<strong>逆序对</strong>模板题开始分析。它的问题是统计 <code>i &lt; j</code> 且 <code>a[i] &gt; a[j]</code> 的数对。我当时AC的思路是：</p>
+<ul>
+<li>从左到右遍历数组，对于每个数 <code>a[j]</code>。</li>
+<li>利用树状数组，查询在它<strong>之前</strong>已经出现过的数中，有多少个<strong>大于</strong> <code>a[j]</code>。</li>
+<li>将这些查询结果累加，就是答案。</li>
+<li>查询结束后，再将 <code>a[j]</code> 本身的信息更新到树状数组中。</li>
+</ul>
+<p>当时的AC代码如下：</p>
+<details>
+<summary>点击展开/折叠 逆序对模板题AC代码</summary>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> n;</span><br><span class="line">vector&lt;<span class="type">int</span>&gt;a, b;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">Lowbit</span><span class="params">(<span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x &amp; -x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">Sum</span><span class="params">(<span class="type">int</span> x, ll arr[])</span></span>&#123;</span><br><span class="line">	ll ansSUM = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = x; i != <span class="number">0</span>; i -= <span class="built_in">Lowbit</span>(i))&#123;</span><br><span class="line">		ansSUM += arr[i];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ansSUM;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Update</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> add, <span class="type">int</span> size, ll arr[])</span></span>&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = x; i &lt;= size; i += <span class="built_in">Lowbit</span>(i))&#123;</span><br><span class="line">		arr[i] += add;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	cin &gt;&gt; n;</span><br><span class="line">	a.<span class="built_in">reserve</span>(n + <span class="number">5</span>);</span><br><span class="line">	b.<span class="built_in">reserve</span>(n + <span class="number">5</span>);</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">		<span class="type">int</span> num;</span><br><span class="line">		cin &gt;&gt; num;</span><br><span class="line">		a.<span class="built_in">push_back</span>(num);</span><br><span class="line">		b.<span class="built_in">push_back</span>(num);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">sort</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>());</span><br><span class="line">	b.<span class="built_in">erase</span>(<span class="built_in">unique</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>()), b.<span class="built_in">end</span>());</span><br><span class="line">	<span class="type">int</span> size = b.<span class="built_in">size</span>();</span><br><span class="line">	ll c[size + <span class="number">5</span>] = &#123;<span class="number">0</span>&#125;, ans[size + <span class="number">5</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">	<span class="type">int</span> cnt = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> p : a)&#123;</span><br><span class="line">		cnt++;</span><br><span class="line">		<span class="type">int</span> idx = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), p) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">		<span class="built_in">Update</span>(idx, <span class="number">1</span>, size, c);</span><br><span class="line">		<span class="built_in">Update</span>(idx, cnt - <span class="built_in">Sum</span>(idx, c), size, ans);</span><br><span class="line">	&#125;</span><br><span class="line">	cout &lt;&lt; <span class="built_in">Sum</span>(size, ans);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<p>这个框架非常清晰。现在，面对<strong>k倍逆序对</strong>，唯一的不同点，就是判断条件从 <code>a[i] &gt; a[j]</code> 变成了 <code>a[i] &gt; k * a[j]</code>。</p>
+<p>这意味着，我的改造也必须围绕这个变化点展开。当我遍历到 <code>a[j]</code> 时，我需要查询的不再是<strong>比 <code>a[j]</code> 大的数</strong>，而是<strong>比 <code>k * a[j]</code> 大的数</strong>。</p>
+<p>这个看似微小的变化，却直接影响了算法的基石——<strong>离散化</strong>。在原模板中，我们只需要对数组 <code>a</code> 中的值进行离散化。但现在，为了能查询 <code>k * a[j]</code> 的相关信息，我们必须将所有可能作为查询边界的 <code>k * a[j]</code> 也一并纳入离散化的范围。</p>
+<p>这就是从模板到AC的关键一步：<strong>识别出查询目标的变化，并相应地扩大离散化的集合</strong>。</p>
+<hr>
+<h2 id="算法设计及实现"><a href="#算法设计及实现" class="headerlink" title="算法设计及实现"></a><strong>算法设计及实现</strong></h2><p>我的整个解题过程，可以看作是对逆序对模板代码的一次<strong>定向升级</strong>。</p>
+<h3 id="核心思路：模板的演进"><a href="#核心思路：模板的演进" class="headerlink" title="核心思路：模板的演进"></a><strong>核心思路：模板的演进</strong></h3><ol>
+<li><p><strong>继承模板框架：</strong></p>
+<ul>
+<li>整体的算法流程完全继承自逆序对模板：<strong>遍历数组 -&gt; 查询贡献 -&gt; 更新数据 -&gt; 累加结果</strong>。</li>
+<li>核心数据结构依然锁定为<strong>树状数组</strong>，因为它能高效地完成我们需要的<strong>单点更新</strong>和<strong>前缀和查询</strong>。</li>
+<li>由于 <code>a[i]</code> 的值域依然很大，<strong>离散化</strong>这一前置步骤也必须保留。</li>
+</ul>
+</li>
+<li><p><strong>定位改造核心：查询目标的变化</strong></p>
+<ul>
+<li>模板的查询逻辑是：<code>贡献 = 总数 - 小于等于a[j]的个数</code>。</li>
+<li>本题的查询逻辑变为：<code>贡献 = 总数 - 小于等于k*a[j]的个数</code>。</li>
+<li>这个<code>k*a[j]</code>就是本次改造需要处理的<strong>新元素</strong>。</li>
+</ul>
+</li>
+<li><p><strong>升级离散化：</strong></p>
+<ul>
+<li><strong>模板</strong>：离散化集合仅包含 <code>&#123; a[1], a[2], ..., a[n] &#125;</code>。</li>
+<li><strong>本题</strong>：离散化集合必须扩大，同时包含 <code>&#123; a[1], ..., a[n] &#125;</code> 和 <code>&#123; k*a[1], ..., k*a[n] &#125;</code>。因为树状数组的下标是基于离散化后的排名，我们既需要能<strong>更新</strong> <code>a[j]</code> 对应的排名，也需要能<strong>查询</strong> <code>k*a[j]</code> 对应的排名。将它们全部放入一个集合中进行离散化，才能建立统一的“度量衡”。</li>
+</ul>
+</li>
+<li><p><strong>微调主逻辑</strong></p>
+<ul>
+<li>在主循环中，对于当前元素 <code>p</code> (即<code>a[j]</code>)：<ul>
+<li>首先，找到 <code>p</code> 离散化后的排名 <code>idx</code>。</li>
+<li>然后，找到 <code>k*p</code> 离散化后的排名 <code>idx2</code>。</li>
+<li>计算贡献值：<code>ans += cnt - Sum(idx2, c)</code>。这里的 <code>cnt</code> 是已处理元素个数，<code>Sum(idx2, c)</code> 则是利用树状数组查到的、前面出现过且值小于等于 <code>k*p</code> 的元素个数。</li>
+<li>最后，执行和模板完全一样的更新操作：<code>Update(idx, 1, size, c)</code>，将 <code>p</code> 的出现次数记录到树状数组中。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="可行性分析"><a href="#可行性分析" class="headerlink" title="可行性分析"></a><strong>可行性分析</strong></h3><p>这次“魔改”并没有改变算法的根本结构。</p>
+<ul>
+<li><p><strong>时间复杂度:</strong></p>
+<ul>
+<li>离散化集合的大小最多变为 <code>2n</code>。排序的复杂度依然是 <code>O(n log n)</code>。</li>
+<li>主循环中，树状数组和 <code>lower_bound</code> 的操作复杂度仍为 <code>O(log n)</code>。</li>
+<li>总时间复杂度保持在 <strong><code>O(n log n)</code></strong>，完全可以通过。</li>
+</ul>
+</li>
+<li><p><strong>空间复杂度:</strong></p>
+<ul>
+<li>辅助数组 <code>b</code> 和树状数组 <code>c</code> 的大小变为原来的两倍左右，空间复杂度依然是 <strong><code>O(n)</code></strong>。</li>
+</ul>
+</li>
+<li><p><strong>结论：</strong><br>通过精准地定位差异并对离散化这一关键步骤进行升级，我们成功地将逆序对模板适配到了新问题上，<strong>方案高效可行</strong>。</p>
+</li>
+</ul>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a><strong>实现</strong></h3><p>最终的AC代码，清晰地保留了逆序对模板的骨架，但在离散化的部分，能明显看到为了适应新规则而做的扩展。</p>
+<details>
+<summary>点击展开/折叠 最终AC代码</summary>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> n, k;</span><br><span class="line">ll ans;</span><br><span class="line">vector&lt;<span class="type">int</span>&gt;a, b;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">Lowbit</span><span class="params">(<span class="type">int</span> x)</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x &amp; -x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">Sum</span><span class="params">(<span class="type">int</span> x, ll arr[])</span></span>&#123;</span><br><span class="line">	ll ansSUM = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = x; i != <span class="number">0</span>; i -= <span class="built_in">Lowbit</span>(i))&#123;</span><br><span class="line">		ansSUM += arr[i];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ansSUM;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Update</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> add, <span class="type">int</span> size, ll arr[])</span></span>&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = x; i &lt;= size; i += <span class="built_in">Lowbit</span>(i))&#123;</span><br><span class="line">		arr[i] += add;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">	cin.<span class="built_in">tie</span>(<span class="literal">NULL</span>);</span><br><span class="line">	cin &gt;&gt; n &gt;&gt; k;</span><br><span class="line">	a.<span class="built_in">reserve</span>(n + <span class="number">5</span>);</span><br><span class="line">	b.<span class="built_in">reserve</span>(n + <span class="number">5</span>);</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">		<span class="type">int</span> num;</span><br><span class="line">		cin &gt;&gt; num;</span><br><span class="line">		a.<span class="built_in">push_back</span>(num);</span><br><span class="line">		b.<span class="built_in">push_back</span>(num);</span><br><span class="line">		b.<span class="built_in">push_back</span>(k * num);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">sort</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>());</span><br><span class="line">	b.<span class="built_in">erase</span>(<span class="built_in">unique</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>()), b.<span class="built_in">end</span>());</span><br><span class="line">	<span class="type">int</span> size = b.<span class="built_in">size</span>();</span><br><span class="line">	ll c[size + <span class="number">5</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">	ll cnt = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> p : a)&#123;</span><br><span class="line">		cnt++;</span><br><span class="line">		<span class="type">int</span> idx = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), p) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">		<span class="type">int</span> idx2 = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), p * k) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">		<span class="built_in">Update</span>(idx, <span class="number">1</span>, size, c);</span><br><span class="line">		ans += cnt - <span class="built_in">Sum</span>(idx2, c);</span><br><span class="line">	&#125;</span><br><span class="line">	cout &lt;&lt; ans;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<hr>
+<h2 id="代码对比"><a href="#代码对比" class="headerlink" title="代码对比"></a>代码对比</h2><p>整个改造过程实际只涉及两个关键环节。</p>
+<h3 id="1-扩展离散化集合"><a href="#1-扩展离散化集合" class="headerlink" title="1. 扩展离散化集合"></a>1. 扩展离散化集合</h3><p><strong>模板代码</strong>：仅收集原数组中的值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 离散化集合 b 只需包含 a 内的值</span></span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">    <span class="type">int</span> num;</span><br><span class="line">    cin &gt;&gt; num;</span><br><span class="line">    a.<span class="built_in">push_back</span>(num);</span><br><span class="line">    b.<span class="built_in">push_back</span>(num);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>本题代码</strong>：同时收集原数值与其 <code>k</code> 倍值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 离散化集合 b 必须同时包含 a 内的值及其 k 倍</span></span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">    ll num;</span><br><span class="line">    cin &gt;&gt; num;</span><br><span class="line">    a.<span class="built_in">push_back</span>(num);</span><br><span class="line">    b.<span class="built_in">push_back</span>(num);</span><br><span class="line">    b.<span class="built_in">push_back</span>(k * num); <span class="comment">// 【改动】为查询 k*p 预作准备</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因</strong>：树状数组需要查询 <code>k*p</code> 的排名，因此必须在一开始就将所有可能的 <code>k*p</code> 值纳入离散化，以建立统一的排名体系。</p>
+<h3 id="2-变更查询边界"><a href="#2-变更查询边界" class="headerlink" title="2. 变更查询边界"></a>2. 变更查询边界</h3><p><strong>模板代码</strong>：查询大于 <code>p</code> 的元素个数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> p : a)&#123;</span><br><span class="line">    <span class="comment">// 查询和更新都使用 p 自身的排名</span></span><br><span class="line">    <span class="type">int</span> idx = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), p) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 查询边界是 p 本身</span></span><br><span class="line">    ans += cnt - <span class="built_in">Sum</span>(idx, c);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">Update</span>(idx, <span class="number">1</span>, size, c);</span><br><span class="line">    cnt++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>本题代码</strong>：查询大于 <code>k*p</code> 的元素个数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(ll p : a)&#123;</span><br><span class="line">    <span class="comment">// 更新时用 p 的排名</span></span><br><span class="line">    <span class="type">int</span> idx = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), p) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 【改动】计算新的查询边界 k*p 的排名</span></span><br><span class="line">    <span class="type">int</span> idx2 = <span class="built_in">lower_bound</span>(b.<span class="built_in">begin</span>(), b.<span class="built_in">end</span>(), p * k) - b.<span class="built_in">begin</span>() + <span class="number">1</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 【改动】使用新的排名 idx2 进行查询</span></span><br><span class="line">    ans += cnt - <span class="built_in">Sum</span>(idx2, c);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">Update</span>(idx, <span class="number">1</span>, size, c);</span><br><span class="line">    cnt++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因</strong>：题目的核心条件从 <code>&gt; p</code> 变为 <code>&gt; k*p</code>，因此计算贡献时，传入 <code>Sum</code> 函数的参数，必须是 <code>k*p</code> 对应的排名，而非 <code>p</code> 的排名。</p>
+<hr>
+<p><strong>P.S.</strong> 例行在最后放上做题手稿</p>
+<img src="/2025/10/13/K-InversePairs/1.jpg" class="" title="做题手稿">
+
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><strong>模型识别与套用</strong>：将新问题关联到已知的算法模型（本题的<strong>逆序对模板</strong>），以此为基础快速构建解题框架。</li>
+<li><strong>分析核心差异</strong>：精准定位问题变体的关键不同点。本题的核心差异在于判断条件从 <code>a[i] &gt; a[j]</code> 变更为 <code>a[i] &gt; k * a[j]</code>。</li>
+<li><strong>模块化调整</strong>：根据核心差异，修改算法中受影响的模块。此题中，查询条件的变更，直接决定了<strong>离散化</strong>的数据集合必须相应地扩展。</li>
+<li><strong>理解功能而非形式</strong>：掌握算法中每个模块的<strong>功能目的</strong>是解决问题的关键。这使得我们能根据问题变化，对模板进行有效调整，而不是进行无效的生搬硬套。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -193,7 +388,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2025-10-12 03:05:52 / Modified: 03:22:06" itemprop="dateCreated datePublished" datetime="2025-10-12T03:05:52+08:00">2025-10-12</time>
+      <time title="Created: 2025-10-12 03:05:52 / Modified: 03:24:30" itemprop="dateCreated datePublished" datetime="2025-10-12T03:05:52+08:00">2025-10-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -272,7 +467,7 @@
 <p>直接模拟这个过程的难点在于<strong>第二步（重组）</strong>。每次重组后，新图形的边长是多少？四个象限应该放置在哪个精确的坐标上？这些参数的变化并非线性，如果不能找到其规律，算法将无从下手。因此，整个问题的核心，从<strong>如何画图</strong>转变成了<strong>如何计算每一步操作的画布尺寸与布局坐标</strong>。</p>
 <p>我的解法选择了一个迭代的思路，从 <code>n=0</code> 的基础图形出发，循环 <code>n</code> 次，每次迭代生成下一阶段的图形。这个迭代过程并非一成不变，而是根据迭代次数的奇偶，执行两种截然不同的生成逻辑。</p>
 <hr>
-<h2 id="算法设计及实现"><a href="#算法设计及实现" class="headerlink" title="算法设计及实现"></a><strong>算法设计及实现</strong></h2><p>我的算法将题目中抽象的“一次操作”，具象化为一次**奇数步（膨胀）<strong>和一次</strong>偶数步（重组）**的交替执行。通过一个 <code>for</code> 循环，我们模拟 <code>n</code> 次这样的交替演变，最终得到目标图形。</p>
+<h2 id="算法设计及实现"><a href="#算法设计及实现" class="headerlink" title="算法设计及实现"></a><strong>算法设计及实现</strong></h2><p>我的算法将题目中抽象的“一次操作”，具象化为一次<strong>奇数步膨胀</strong>和一次<strong>偶数步重组</strong>的交替执行。通过一个 <code>for</code> 循环，我们模拟 <code>n</code> 次这样的交替演变，最终得到目标图形。</p>
 <h3 id="核心思路：奇偶交替的迭代生成"><a href="#核心思路：奇偶交替的迭代生成" class="headerlink" title="核心思路：奇偶交替的迭代生成"></a><strong>核心思路：奇偶交替的迭代生成</strong></h3><p>我们用一个 <code>for</code> 循环从 <code>i=1</code> 到 <code>n</code> 进行迭代，其中 <code>i</code> 代表当前是第几次演变。</p>
 <ol>
 <li><p><strong>当 <code>i</code> 为奇数时：膨胀阶段</strong></p>
@@ -441,7 +636,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2025-10-03 03:25:36" itemprop="dateModified" datetime="2025-10-03T03:25:36+08:00">2025-10-03</time>
+      <time title="Modified: 2025-10-13 02:21:31" itemprop="dateModified" datetime="2025-10-13T02:21:31+08:00">2025-10-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -640,6 +835,7 @@
 <p><strong>对比总结：</strong><br>正向遍历采用“先改后查”的策略，通过总数减法巧妙地排除了自身的影响；而反向遍历则采用“先查后改”的策略，直接查询所需的结果。两者虽然实现顺序相反，但都最终达成了正确的计算目的，体现了算法实现的灵活性。</p>
 </li>
 </ul>
+<hr>
 <p><strong>P.S.</strong> 最后附上我做题时的杂乱草稿（</p>
 <img src="/2025/10/02/Luogu-P8613-Review/4.jpg" class="" title="做题草稿">
 
