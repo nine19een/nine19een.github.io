@@ -128,7 +128,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -137,7 +137,7 @@
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -154,6 +154,261 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/10/25/Luogu-P1133-FlowerGardenDP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/10/25/Luogu-P1133-FlowerGardenDP/" class="post-title-link" itemprop="url">洛谷-P1133-教主的花园·复盘——从线性DP到环形DP</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2025-10-25 02:00:00 / Modified: 02:14:04" itemprop="dateCreated datePublished" datetime="2025-10-25T02:00:00+08:00">2025-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E8%A7%A3-%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">算法题解/复盘</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近，我解决了一道经典的 <strong>环形DP</strong> 问题。该问题具有较强的迷惑性，我设计了一个看似正确的线性DP模型，实际上忽略了问题最核心的 <strong>环形</strong> 约束。本文旨在完整复盘从一个70分的线性解，到一个90分的 <strong>错误补丁</strong> 解，最终到100分AC的 <strong>破环成链</strong> 正解的全过程，深入剖析每一步的思维误区与正确建模的关键。</p>
+<hr>
+<h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><p><strong><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/problem/P1133">P1133 教主的花园</a></strong></p>
+<img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/1.png" class="" title="题面">
+
+<p>提炼题目要素：</p>
+<ol>
+<li><strong>布局</strong>：<strong>环形</strong> 排列。</li>
+<li><strong>约束</strong>：任何一棵树必须比其左右相邻的树 <strong>同时更高或更矮</strong>，形成 <strong>波峰</strong> 或 <strong>波谷</strong>。</li>
+<li><strong>目标</strong>：观赏价值总和最大。</li>
+</ol>
+<p>这是一个动态规划问题。核心在于状态的设计。为了存储输入的观赏价值，我使用了一个 <code>Plant_Position</code> 结构体，其中 <code>pos[i].ten</code>, <code>pos[i].twenty</code>, <code>pos[i].thirty</code> 持有位置 <code>i</code> 的相应价值。</p>
+<p>为了判断位置 <code>i</code> 的种植是否合法，不仅需要知道位置 <code>i-1</code> 的高度，还需要知道 <code>i-1</code> 相对于 <code>i-2</code> 的趋势，这样才能决定 <code>i</code> 的合法走向。因此，一个三维状态是必要的：<code>dp[i][j][k]</code>。</p>
+<ul>
+<li><code>i</code>：表示正在考虑第 <code>i</code> 棵树。</li>
+<li><code>j</code>：表示第 <code>i</code> 棵树的高度。我们用 <code>1, 2, 3</code> 分别代表高度 <code>10, 20, 30</code>。</li>
+<li><code>k</code>：表示第 <code>i</code> 棵树的形态。<ul>
+<li><code>k=0</code>：第 <code>i</code> 棵树是 <strong>波谷</strong>，即 <code>H[i-1] &gt; H[i]</code>，从 <code>i-1</code> 到 <code>i</code> 是 <strong>下降</strong> 趋势。</li>
+<li><code>k=1</code>：第 <code>i</code> 棵树是 <strong>波峰</strong>，即 <code>H[i-1] &lt; H[i]</code>，从 <code>i-1</code> 到 <code>i</code> 是 <strong>上升</strong> 趋势。</li>
+</ul>
+</li>
+</ul>
+<p><code>dp[i][j][k]</code> 的值，就代表满足以上定义时的最大观赏价值。</p>
+<hr>
+<h2 id="算法设计及实现"><a href="#算法设计及实现" class="headerlink" title="算法设计及实现"></a>算法设计及实现</h2><h3 id="V1-0-线性DP的初步尝试-70分"><a href="#V1-0-线性DP的初步尝试-70分" class="headerlink" title="V1.0 线性DP的初步尝试 (70分)"></a><strong>V1.0 线性DP的初步尝试 (70分)</strong></h3><h4 id="设计"><a href="#设计" class="headerlink" title="设计"></a><strong>设计</strong></h4><p>最初的方案完全忽略了 <strong>环形</strong> 约束，将花园视为一个从 <code>1</code> 到 <code>n</code> 的 <strong>线性序列</strong>。基于上述 <code>dp[i][j][k]</code> 状态，可以推导出所有合法的状态转移方程。</p>
+<p><strong>状态转移方程详解：</strong></p>
+<ol>
+<li><p><strong>目标状态: <code>dp[i][1][0]</code> (高度 <code>10</code> , 波谷&#x2F;下降)</strong></p>
+<ul>
+<li><strong>逻辑</strong>: 要下降到高度 <code>10</code> ，前一个位置 <code>i-1</code> 的高度必须是 <code>20</code> 或 <code>30</code> 。同时，为了形成波谷，前一个位置 <code>i-1</code> 必须是波峰（上升趋势，<code>k=1</code>）。</li>
+<li><strong>方程</strong>: <code>dp[i][1][0] = max(dp[i-1][2][1], dp[i-1][3][1]) + pos[i].ten</code></li>
+</ul>
+</li>
+<li><p><strong>目标状态: <code>dp[i][2][0]</code> (高度 <code>20</code> , 波谷&#x2F;下降)</strong></p>
+<ul>
+<li><strong>逻辑</strong>: 要下降到高度 <code>20</code> ，前一个位置 <code>i-1</code> 的高度必须是 <code>30</code> 。前一个位置 <code>i-1</code> 必须是波峰（上升趋势，<code>k=1</code>）。</li>
+<li><strong>方程</strong>: <code>dp[i][2][0] = dp[i-1][3][1] + pos[i].twenty</code></li>
+</ul>
+</li>
+<li><p><strong>目标状态: <code>dp[i][2][1]</code> (高度 <code>20</code> , 波峰&#x2F;上升)</strong></p>
+<ul>
+<li><strong>逻辑</strong>: 要上升到高度 <code>20</code> ，前一个位置 <code>i-1</code> 的高度必须是 <code>10</code> 。前一个位置 <code>i-1</code> 必须是波谷（下降趋势，<code>k=0</code>）。</li>
+<li><strong>方程</strong>: <code>dp[i][2][1] = dp[i-1][1][0] + pos[i].twenty</code></li>
+</ul>
+</li>
+<li><p><strong>目标状态: <code>dp[i][3][1]</code> (高度 <code>30</code> , 波峰&#x2F;上升)</strong></p>
+<ul>
+<li><strong>逻辑</strong>: 要上升到高度 <code>30</code> ，前一个位置 <code>i-1</code> 的高度可以是 <code>10</code> 或 <code>20</code> 。前一个位置 <code>i-1</code> 必须是波谷（下降趋势，<code>k=0</code>）。</li>
+<li><strong>方程</strong>: <code>dp[i][3][1] = max(dp[i-1][1][0], dp[i-1][2][0]) + pos[i].thirty</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>不可达状态</strong>:</p>
+<ul>
+<li><code>dp[i][1][1]</code> (上升到最低点) 和 <code>dp[i][3][0]</code> (下降到最高点) 是不可能出现的。这些状态的值应保持为极小值，不参与计算。</li>
+</ul>
+<img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/2.jpg" class="" title="手稿1">
+
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a><strong>实现</strong></h4><p>该方案的实现直接从 <code>i=1</code> 循环到 <code>n</code>，并在最后取 <code>dp[n]</code> 所有合法状态的最大值作为结果。</p>
+<img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/3.png" class="" title="70分提交记录">
+
+<p><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/record/242568689">70分提交记录</a></p>
+<details>
+<summary>点击展开/折叠 V1.0 70分代码</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line">ll <span class="type">const</span> maxn = <span class="number">1e5</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Plant_Position</span> &#123;</span><br><span class="line">    ll ten, twenty, thirty;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ll n, dp[maxn][<span class="number">8</span>][<span class="number">7</span>];</span><br><span class="line">Plant_Position pos[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_10_0</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">1</span>][<span class="number">0</span>] = <span class="built_in">max</span>(dp[idx - <span class="number">1</span>][<span class="number">2</span>][<span class="number">1</span>], dp[idx - <span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>]) + pos[idx].ten;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_20_0</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">2</span>][<span class="number">0</span>] = dp[idx - <span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>] + pos[idx].twenty;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_20_1</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">2</span>][<span class="number">1</span>] = dp[idx - <span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>] + pos[idx].twenty;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_30_1</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">3</span>][<span class="number">1</span>] = <span class="built_in">max</span>(dp[idx - <span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>], dp[idx - <span class="number">1</span>][<span class="number">2</span>][<span class="number">0</span>]) + pos[idx].thirty;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">DP</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="built_in">dp_10_0</span>(i);</span><br><span class="line">        <span class="built_in">dp_20_0</span>(i);</span><br><span class="line">        <span class="built_in">dp_20_1</span>(i);</span><br><span class="line">        <span class="built_in">dp_30_1</span>(i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">max</span>(<span class="built_in">max</span>(dp[n][<span class="number">1</span>][<span class="number">0</span>], dp[n][<span class="number">3</span>][<span class="number">1</span>]), <span class="built_in">max</span>(dp[n][<span class="number">2</span>][<span class="number">0</span>], dp[n][<span class="number">2</span>][<span class="number">1</span>]));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">NULL</span>);</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; pos[i].ten &gt;&gt; pos[i].twenty &gt;&gt; pos[i].thirty;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">DP</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h4 id="错误分析"><a href="#错误分析" class="headerlink" title="错误分析"></a><strong>错误分析</strong></h4><ul>
+<li><strong>问题根源：</strong><br>该方案计算出的结果是 <strong>线性排列</strong> 下的最优解。但题目要求的是 <strong>环形排列</strong>。线性最优解的第 <code>n</code> 个位置和第 <code>1</code> 个位置的状态，很可能不满足高低交错的约束，因此该解对于环形问题是 <strong>非法的</strong>。</li>
+</ul>
+<h3 id="V2-0-“打补丁”的错误修正-90分"><a href="#V2-0-“打补丁”的错误修正-90分" class="headerlink" title="V2.0 “打补丁”的错误修正 (90分)"></a><strong>V2.0 “打补丁”的错误修正 (90分)</strong></h3><h4 id="设计-1"><a href="#设计-1" class="headerlink" title="设计"></a><strong>设计</strong></h4><p>在提交V1.0后，我意识到了环形约束的问题。此时产生了一个错误的修正思路：<strong>先算出线性最优，再检查它是否满足环形约束</strong>。</p>
+<p>这个思路最初的实现是一个复杂且繁琐的 <code>while</code> 循环：</p>
+<details>
+<summary>点击展开/折叠 while“补丁”</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">ans.<span class="built_in">push_back</span>(dp[n][<span class="number">1</span>][<span class="number">0</span>]);</span><br><span class="line">ans.<span class="built_in">push_back</span>(dp[n][<span class="number">2</span>][<span class="number">0</span>]);</span><br><span class="line">ans.<span class="built_in">push_back</span>(dp[n][<span class="number">2</span>][<span class="number">1</span>]);</span><br><span class="line">ans.<span class="built_in">push_back</span>(dp[n][<span class="number">3</span>][<span class="number">1</span>]);</span><br><span class="line"><span class="built_in">sort</span>(ans.<span class="built_in">begin</span>(), ans.<span class="built_in">end</span>());</span><br><span class="line"><span class="type">bool</span> y[<span class="number">5</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (ans.<span class="built_in">back</span>() == dp[n][<span class="number">2</span>][<span class="number">0</span>] &amp;&amp; !y[<span class="number">0</span>]) &#123;</span><br><span class="line">        <span class="keyword">if</span> (pos[<span class="number">1</span>].twenty &lt; pos[<span class="number">1</span>].thirty) &#123;</span><br><span class="line">            cout &lt;&lt; ans.<span class="built_in">back</span>();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            y[<span class="number">0</span>] = <span class="literal">true</span>;</span><br><span class="line">            ans.<span class="built_in">pop_back</span>();</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ans.<span class="built_in">back</span>() == dp[n][<span class="number">2</span>][<span class="number">1</span>] &amp;&amp; !y[<span class="number">1</span>]) &#123;</span><br><span class="line">        <span class="keyword">if</span> (pos[<span class="number">1</span>].twenty &lt; pos[<span class="number">1</span>].ten) &#123;</span><br><span class="line">            cout &lt;&lt; ans.<span class="built_in">back</span>();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            y[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">            ans.<span class="built_in">pop_back</span>();</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; ans.<span class="built_in">back</span>();</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<p>这个复杂的 <code>while</code> 最终被我精简为两个 <code>if</code> 语句：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (pos[<span class="number">1</span>].twenty &gt; pos[<span class="number">1</span>].ten) &#123;</span><br><span class="line">    dp[n][<span class="number">2</span>][<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (pos[<span class="number">1</span>].twenty &gt; pos[<span class="number">1</span>].thirty) &#123;</span><br><span class="line">    dp[n][<span class="number">2</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">cout &lt;&lt; <span class="built_in">max</span>(<span class="built_in">max</span>(dp[n][<span class="number">1</span>][<span class="number">0</span>], dp[n][<span class="number">3</span>][<span class="number">1</span>]), <span class="built_in">max</span>(dp[n][<span class="number">2</span>][<span class="number">0</span>], dp[n][<span class="number">2</span>][<span class="number">1</span>]));</span><br></pre></td></tr></table></figure>
+
+<p><code>if</code> 虽比 <code>while</code> 精简了很多，其内在的错误逻辑是相同的。这个 <strong>“补丁”</strong> 的意图是，从线性DP算出的几个最优候选解中，通过一套逻辑来 <strong>推断</strong> 并 <strong>验证</strong> 起点是否合法。</p>
+<p>其验证逻辑如下：</p>
+<ol>
+<li><p><strong>无约束情况</strong>：如果线性最优解的终点是 <code>dp[n][1][0]</code> ( <code>H=10</code> , 下降) 或 <code>dp[n][3][1]</code> ( <code>H=30</code> , 上升)，则直接接受。</p>
+<ul>
+<li><strong>推断</strong>: 如果 <code>H[n]=10</code>，则环要求 <code>H[1] &gt; 10</code>，即 <code>H[1]</code> 可以是 <code>20</code> 或 <code>30</code> 。因为有两个选择，代码便假设总能找到一个合法的起点，无需干预。<code>H[n]=30</code> 同理。</li>
+</ul>
+</li>
+<li><p><strong>约束情况 1</strong>: 当考虑终点为 <code>dp[n][2][1]</code> ( <code>H=20</code> , 上升) 的路径时。</p>
+<ul>
+<li><strong>推断</strong>: 这个终点状态意味着 <code>H[n-1]=10</code>。为了构成环，<code>H[1]</code> 必须小于 <code>H[n]=20</code>，所以 <code>H[1]</code> <strong>必须是 <code>10</code></strong>。</li>
+<li><strong>验证</strong>: 此时，代码进行一次 <strong>贪心</strong> 检查：<code>if (pos[1].twenty &gt; pos[1].ten)</code>。这个判断的逻辑是：“如果在起点上，种 <code>20</code> 的观赏价值比种 <code>10</code> 要高，那么一个真正最优的路径，当初在起点时就 <strong>不可能</strong> 选择种 <code>10</code> ”。基于这个贪心假设，如果条件成立，就认为这条要求起点为 <code>10</code> 的路径不可能是最优解，于是通过 <code>dp[n][2][1] = 0</code> 将其作废。</li>
+</ul>
+</li>
+<li><p><strong>约束情况 2</strong>: 当考虑终点为 <code>dp[n][2][0]</code> ( <code>H=20</code> , 下降) 的路径时。</p>
+<ul>
+<li><strong>推断</strong>: 这个终点状态意味着 <code>H[n-1]=30</code>。为了构成环，<code>H[1]</code> 必须大于 <code>H[n]=20</code>，所以 <code>H[1]</code> <strong>必须是 <code>30</code></strong>。</li>
+<li><strong>验证</strong>: 类似地，代码进行贪心检查 <code>if (pos[1].twenty &gt; pos[1].thirty)</code>。如果种 <code>20</code> 的价值更高，就认为这条要求起点为 <code>30</code> 的路径不可能是最优解，将其作废。</li>
+</ul>
+</li>
+</ol>
+<img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/4.jpg" class="" title="手稿2">
+
+<h4 id="实现-1"><a href="#实现-1" class="headerlink" title="实现"></a><strong>实现</strong></h4><img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/5.png" class="" title="90分提交记录">
+
+<p><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/record/242583553">90分提交记录</a></p>
+<details>
+<summary>点击展开/折叠 V2.0 代码 (90分)</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line">ll <span class="type">const</span> maxn = <span class="number">1e5</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Plant_Position</span> &#123;</span><br><span class="line">    ll ten, twenty, thirty;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ll n, dp[maxn][<span class="number">8</span>][<span class="number">7</span>];</span><br><span class="line">Plant_Position pos[maxn];</span><br><span class="line">vector&lt;ll&gt; ans;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_10_0</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">1</span>][<span class="number">0</span>] = <span class="built_in">max</span>(dp[idx - <span class="number">1</span>][<span class="number">2</span>][<span class="number">1</span>], dp[idx - <span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>]) + pos[idx].ten;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_20_0</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">2</span>][<span class="number">0</span>] = dp[idx - <span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>] + pos[idx].twenty;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_20_1</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">2</span>][<span class="number">1</span>] = dp[idx - <span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>] + pos[idx].twenty;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dp_30_1</span><span class="params">(<span class="type">int</span> idx)</span> </span>&#123;</span><br><span class="line">    dp[idx][<span class="number">3</span>][<span class="number">1</span>] = <span class="built_in">max</span>(dp[idx - <span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>], dp[idx - <span class="number">1</span>][<span class="number">2</span>][<span class="number">0</span>]) + pos[idx].thirty;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">DP</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="built_in">dp_10_0</span>(i);</span><br><span class="line">        <span class="built_in">dp_20_0</span>(i);</span><br><span class="line">        <span class="built_in">dp_20_1</span>(i);</span><br><span class="line">        <span class="built_in">dp_30_1</span>(i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (pos[<span class="number">1</span>].twenty &gt; pos[<span class="number">1</span>].ten) &#123;</span><br><span class="line">        dp[n][<span class="number">2</span>][<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (pos[<span class="number">1</span>].twenty &gt; pos[<span class="number">1</span>].thirty) &#123;</span><br><span class="line">        dp[n][<span class="number">2</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">max</span>(<span class="built_in">max</span>(dp[n][<span class="number">1</span>][<span class="number">0</span>], dp[n][<span class="number">3</span>][<span class="number">1</span>]), <span class="built_in">max</span>(dp[n][<span class="number">2</span>][<span class="number">0</span>], dp[n][<span class="number">2</span>][<span class="number">1</span>]));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">NULL</span>);</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; pos[i].ten &gt;&gt; pos[i].twenty &gt;&gt; pos[i].thirty;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">DP</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h4 id="错误分析-1"><a href="#错误分析-1" class="headerlink" title="错误分析"></a><strong>错误分析</strong></h4><ul>
+<li><p><strong>根本性缺陷：</strong><br>此方案的失败，并非因为 <code>if</code> 语句这个 <strong>补丁</strong> 本身不够精巧。恰恰相反，它很好地浓缩了前一版 <code>while</code> 循环的意图，是一个逻辑上很优质的补丁。</p>
+<p>真正的错误出在算法的 <strong>根本设计</strong> 上。这种 <strong>事后补救</strong> 的方法，就相当于把一条通往错误方向的道路修得非常漂亮，但道路再好，也无法到达正确的终点。</p>
+<p>其核心谬误在于，它错误地假设了 <strong>环形最优解一定包含在线性最优解之中</strong>。而事实上，真正的环形最优解，其线性部分可能根本不是最优的。代码只检查了少数几个 <strong>线性最优</strong> 的候选者，而真正的答案可能在第一次DP时，就因为在线性排列上得分不够高而被直接淘汰，永远没有机会被最后的 <code>if</code> 语句检查。这是一种典型的 <strong>局部最优陷阱</strong>。</p>
+</li>
+</ul>
+<h3 id="V3-0-“破环成链”的正确解法-AC"><a href="#V3-0-“破环成链”的正确解法-AC" class="headerlink" title="V3.0 “破环成链”的正确解法 (AC)"></a><strong>V3.0 “破环成链”的正确解法 (AC)</strong></h3><h4 id="设计-2"><a href="#设计-2" class="headerlink" title="设计"></a><strong>设计</strong></h4><p>正确的做法是放弃 <strong>事后补救</strong>，采用处理环形问题的 <strong>标准范式——破环成链</strong>。</p>
+<p>其核心思想是，将一个复杂的环形问题，分解为几个独立的、<strong>带有明确起始和结束约束</strong> 的线性问题。</p>
+<p>具体方案是，通过一个外层循环，<strong>强制指定 <code>第 1 棵树</code> 的高度</strong>（分三种情况： <code>H=10</code> ,  <code>H=20</code> ,  <code>H=30</code> ）。对每种情况独立进行一次从2到n的线性DP，并在最后根据固定的起点，对终点 <code>dp[n]</code> 的状态进行合法性筛选。</p>
+<img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/6.jpg" class="" title="手稿3">
+
+<h4 id="可行性分析"><a href="#可行性分析" class="headerlink" title="可行性分析"></a><strong>可行性分析</strong></h4><ul>
+<li><strong>时间复杂度</strong>: 每次DP的计算量是 <code>O(n)</code>。总共进行3次独立的DP，所以总时间复杂度依然是 <code>O(n)</code>。</li>
+<li><strong>空间复杂度</strong>: <code>O(n)</code>。</li>
+<li><strong>结论</strong>: 方案高效可行。</li>
+</ul>
+<h4 id="实现-2"><a href="#实现-2" class="headerlink" title="实现"></a><strong>实现</strong></h4><img src="/2025/10/25/Luogu-P1133-FlowerGardenDP/7.png" class="" title="AC提交记录">
+
+<p><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/record/242678415">AC提交记录</a></p>
+<details>
+<summary>点击展开/折叠 V3.0 AC代码</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line">ll <span class="type">const</span> maxn = <span class="number">1e5</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Plant_Position</span> &#123;</span><br><span class="line">    ll ten, twenty, thirty;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ll n, dp[maxn][<span class="number">5</span>][<span class="number">5</span>], ans;</span><br><span class="line">Plant_Position pos[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">DP</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll ans = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">3</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">1</span>) &#123;</span><br><span class="line">            dp[<span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>] = pos[<span class="number">1</span>].ten;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">2</span>) &#123;</span><br><span class="line">            dp[<span class="number">1</span>][<span class="number">2</span>][<span class="number">0</span>] = pos[<span class="number">1</span>].twenty, dp[<span class="number">1</span>][<span class="number">2</span>][<span class="number">1</span>] = pos[<span class="number">1</span>].twenty;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">3</span>) &#123;</span><br><span class="line">            dp[<span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>] = pos[<span class="number">1</span>].thirty;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">2</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            dp[i][<span class="number">1</span>][<span class="number">0</span>] = <span class="built_in">max</span>(dp[i - <span class="number">1</span>][<span class="number">2</span>][<span class="number">1</span>], dp[i - <span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>]) + pos[i].ten;</span><br><span class="line">            dp[i][<span class="number">2</span>][<span class="number">0</span>] = dp[i - <span class="number">1</span>][<span class="number">3</span>][<span class="number">1</span>] + pos[i].twenty;</span><br><span class="line">            dp[i][<span class="number">2</span>][<span class="number">1</span>] = dp[i - <span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>] + pos[i].twenty;</span><br><span class="line">            dp[i][<span class="number">3</span>][<span class="number">1</span>] = <span class="built_in">max</span>(dp[i - <span class="number">1</span>][<span class="number">1</span>][<span class="number">0</span>], dp[i - <span class="number">1</span>][<span class="number">2</span>][<span class="number">0</span>]) + pos[i].thirty;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">1</span>) &#123;</span><br><span class="line">            ans = <span class="built_in">max</span>(ans, <span class="built_in">max</span>(dp[n][<span class="number">2</span>][<span class="number">1</span>], dp[n][<span class="number">3</span>][<span class="number">1</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">2</span>) &#123;</span><br><span class="line">            ans = <span class="built_in">max</span>(ans, <span class="built_in">max</span>(dp[n][<span class="number">1</span>][<span class="number">0</span>], dp[n][<span class="number">3</span>][<span class="number">1</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">3</span>) &#123;</span><br><span class="line">            ans = <span class="built_in">max</span>(ans, <span class="built_in">max</span>(dp[n][<span class="number">1</span>][<span class="number">0</span>], dp[n][<span class="number">2</span>][<span class="number">0</span>]));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">memset</span>(dp, <span class="number">0</span>, <span class="built_in">sizeof</span>(dp));</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; ans;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">NULL</span>);</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        cin &gt;&gt; pos[i].ten &gt;&gt; pos[i].twenty &gt;&gt; pos[i].thirty;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">DP</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ul>
+<li><p><strong>实现细节剖析</strong><br>该方案的精髓在于，将环形约束从一个 <strong>事后检查</strong> 的难题，转化为了一个 <strong>顶层设计</strong> 的分类讨论。在固定了起点后，最后结算时对终点的筛选逻辑如下：</p>
+<ol>
+<li><p><strong>若起点  <code>H[1]=10</code>  (波谷)</strong>:</p>
+<ul>
+<li>为构成环，终点 <code>H[n]</code> 必须是波峰，且 <code>H[n] &gt; H[1]</code>。</li>
+<li>合法终点状态：<code>dp[n][2][1]</code> ( <code>H=20</code> , 上升) 和 <code>dp[n][3][1]</code> ( <code>H=30</code> , 上升)。</li>
+<li>候选答案: <code>max(dp[n][2][1], dp[n][3][1])</code></li>
+</ul>
+</li>
+<li><p><strong>若起点  <code>H[1]=20</code>  (波峰或波谷)</strong>:</p>
+<ul>
+<li>为构成环，若 <code>H[n]</code> 是波峰，则 <code>H[n] &gt; H[1]</code>；若 <code>H[n]</code> 是波谷，则 <code>H[n] &lt; H[1]</code>。</li>
+<li>合法终点状态：<code>dp[n][3][1]</code> ( <code>H=30</code> , 上升) 和 <code>dp[n][1][0]</code> ( <code>H=10</code> , 下降)。</li>
+<li>候选答案: <code>max(dp[n][3][1], dp[n][1][0])</code></li>
+</ul>
+</li>
+<li><p><strong>若起点  <code>H[1]=30</code>  (波峰)</strong>:</p>
+<ul>
+<li>为构成环，终点 <code>H[n]</code> 必须是波谷，且 <code>H[n] &lt; H[1]</code>。</li>
+<li>合法终点状态：<code>dp[n][1][0]</code> ( <code>H=10</code> , 下降) 和 <code>dp[n][2][0]</code> ( <code>H=20</code> , 下降)。</li>
+<li>候选答案: <code>max(dp[n][1][0], dp[n][2][0])</code></li>
+</ul>
+</li>
+</ol>
+<p>最终答案就是这三个候选答案中的最大值。这种精确的筛选保证了最终解的合法性。</p>
+</li>
+</ul>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><strong>问题建模是关键</strong>：正确识别并处理 <strong>环形</strong> 这一核心模型，是解决本题的钥匙。直接套用线性模型会导致从根本上偏离题意。</li>
+<li><strong>警惕“打补丁”式的修正</strong>：当发现算法有漏洞时，复杂的 <strong>事后检查</strong> 逻辑往往是错误或不完备的。正确的做法是回到设计的起点，思考如何将约束从一开始就融入算法模型。</li>
+<li><strong>掌握标准范式</strong>：<strong>破环成链</strong> 是解决几乎所有环形DP、环形数组问题的通用且强大的思想，必须熟练掌握。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
