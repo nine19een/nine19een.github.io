@@ -132,7 +132,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -158,6 +158,180 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="nine19een">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="nine19een's Blog">
+      <meta itemprop="description" content="记录学习过程中的思考、题解与复盘">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | nine19een's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/" class="post-title-link" itemprop="url">洛谷-P1121-环状最大两段子段和·复盘——从对偶思想到边界陷阱</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-11-03 15:00:00 / 修改时间：15:08:11" itemprop="dateCreated datePublished" datetime="2025-11-03T15:00:00+08:00">2025-11-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E8%A7%A3-%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">算法题解/复盘</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本文复盘洛谷<code>P1121</code> <strong>环状最大两段子段和</strong> 的解题过程。本次复盘的核心算法思路，即 <strong>分类讨论</strong> 结合 <strong>对偶思想</strong>，在初版实现中就是正确的。然而，一个由 <strong>非空</strong> 约束导致的边界情况，使得初版代码无法通过全部测试点。本文将详细分析该边界情况的触发机理，并展示如何通过一行代码进行修复，将<code>80</code>分的实现修正为<code>100</code>分的最终解。</p>
+<hr>
+<h3 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h3><p><strong><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/problem/P1121">P1121 环状最大两段子段和</a></strong></p>
+<img src="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/1.png" class="" title="题面">
+
+<p>提炼题目要素：</p>
+<ol>
+<li><strong>布局</strong>：<strong>环形</strong> 排列。<code>a[1]</code> 和 <code>a[n]</code> 相邻。这意味着一个连续子段可以从数组尾部跨越到头部。</li>
+<li><strong>目标</strong>：选出 <strong>两段</strong> <strong>不重叠</strong> 且 <strong>非空</strong> 的连续子段，使其和最大。<strong>非空</strong> 约束是处理边界情况的关键。</li>
+<li><strong>约束</strong>：<code>N</code>最大为<code>2e5</code>，算法的时间复杂度必须是<code>O(N)</code>或<code>O(N log N)</code>。</li>
+</ol>
+<p>此问题需要在环形结构上求解两段子段的和的最大值。重点在于设计一个线性时间复杂度的算法，以处理 <strong>环形结构</strong> 和 <strong>两段选择</strong> 的双重约束。</p>
+<hr>
+<h3 id="算法设计及实现"><a href="#算法设计及实现" class="headerlink" title="算法设计及实现"></a>算法设计及实现</h3><h4 id="V1-0-初版实现-80分"><a href="#V1-0-初版实现-80分" class="headerlink" title="V1.0 初版实现 (80分)"></a>V1.0 初版实现 (80分)</h4><h5 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h5><p>在环形结构上直接进行动态规划，因其缺少固定起终点而难以定义状态。因此，采用标准方法，将环形问题分解为线性问题进行处理。</p>
+<p>对所有可能的两段子段的选择，按其是否跨越 <code>a[1]</code> 和 <code>a[n]</code> 的连接点，可分为两种情况：</p>
+<ol>
+<li><p><strong>情况一：选择的两段不跨越 <code>a[1]</code>-<code>a[n]</code> 的连接点。</strong></p>
+<ul>
+<li><strong>问题转化</strong>: 此情况等价于在 <strong>链</strong> <code>a[1...n]</code> 上寻找最大两段子段和。</li>
+<li><strong>解决方案</strong>: 通过枚举分割点来解决。链上的两段最优解 <code>S1</code> 和 <code>S2</code> 之间必定存在一个分割点。<br>a.  通过动态规划预处理计算两个辅助数组：<ul>
+<li><code>max_L_to_R[i]</code>：存储 <strong>前缀区间 <code>a[1...i]</code> 内的最大单段子段和</strong>。</li>
+<li><code>max_R_to_L[i]</code>：存储 <strong>后缀区间 <code>a[i...n]</code> 内的最大单段子段和</strong>。<br>b.  遍历所有可能的分割点 <code>i</code> (<code>1</code> 到 <code>n-1</code>)，计算 <code>max_L_to_R[i] + max_R_to_L[i+1]</code>。<br>c.  这些和中的最大值，即为情况一的解。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>情况二：选择的两段跨越 <code>a[1]</code>-<code>a[n]</code> 的连接点。</strong></p>
+<ul>
+<li><strong>问题转化</strong>: 此情况指一段位于数组尾部，另一段位于头部。为简化计算，采用对偶思想。</li>
+<li><strong>逻辑原理</strong>: <code>(选中元素的和) = (数组总和) - (未选中元素的和)</code>。</li>
+<li><strong>核心观察</strong>: 若选中的部分是 <strong>跨界</strong> 的，则未选中的部分必然是 <strong>不跨界</strong> 的。</li>
+<li><strong>再次转化</strong>: 最大化 <strong>选中元素的和</strong>，等价于最小化 <strong>未选中元素的和</strong>。</li>
+<li><strong>解决方案</strong>:<br>a.  问题转化为：在 <strong>链</strong> <code>a[1...n]</code> 上，寻找 <strong>最小两段子段和</strong>。<br>b.  采用与情况一对称的方法，计算 <code>min_L_to_R</code> 和 <code>min_R_to_L</code> 数组，求出链上的最小两段和。<br>c.  用 <code>数组总和</code> 减去此值，即为情况二的解。</li>
+</ul>
+</li>
+</ol>
+<p>最终答案为 <code>max(情况一的解, 情况二的解)</code>。该算法的时间复杂度为<code>O(N)</code>。</p>
+<img src="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/2.jpg" class="" title="手稿1">
+
+<h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><img src="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/4.png" class="" title="80分提交记录">
+
+<p><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/record/244799120">80分提交记录</a></p>
+<details>
+<summary>点击展开/折叠 V1.0 80分代码</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line">ll <span class="type">const</span> maxn = <span class="number">2e5</span> + <span class="number">5</span>, minn = <span class="number">-1e9</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> n;</span><br><span class="line">ll total_a, a[maxn], max_L_to_R[maxn], dp_max_L_to_R[maxn], max_R_to_L[maxn], dp_max_R_to_L[maxn], min_L_to_R[maxn], dp_min_L_to_R[maxn], min_R_to_L[maxn], dp_min_R_to_L[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">find_L_to_R</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll max_val = minn, min_val = maxn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        dp_max_L_to_R[i] = <span class="built_in">max</span>(dp_max_L_to_R[i - <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        max_val = <span class="built_in">max</span>(max_val, dp_max_L_to_R[i]);</span><br><span class="line">        max_L_to_R[i] = max_val;</span><br><span class="line">        dp_min_L_to_R[i] = <span class="built_in">min</span>(dp_min_L_to_R[i - <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        min_val = <span class="built_in">min</span>(min_val, dp_min_L_to_R[i]);</span><br><span class="line">        min_L_to_R[i] = min_val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">find_R_to_L</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll max_val = minn, min_val = maxn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = n; i &gt;= <span class="number">1</span>; --i) &#123;</span><br><span class="line">        dp_max_R_to_L[i] = <span class="built_in">max</span>(dp_max_R_to_L[i + <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        max_val = <span class="built_in">max</span>(max_val, dp_max_R_to_L[i]);</span><br><span class="line">        max_R_to_L[i] = max_val;</span><br><span class="line">        dp_min_R_to_L[i] = <span class="built_in">min</span>(dp_min_R_to_L[i + <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        min_val = <span class="built_in">min</span>(min_val, dp_min_R_to_L[i]);</span><br><span class="line">        min_R_to_L[i] = min_val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">case_1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll max_val = minn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        max_val = <span class="built_in">max</span>(max_val, max_L_to_R[i] + max_R_to_L[i + <span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> max_val;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">case_2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll min_val = maxn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        min_val = <span class="built_in">min</span>(min_val, min_L_to_R[i] + min_R_to_L[i + <span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> total_a - min_val;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">NULL</span>);</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">        total_a += a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">find_L_to_R</span>();</span><br><span class="line">    <span class="built_in">find_R_to_L</span>();</span><br><span class="line">    cout &lt;&lt; <span class="built_in">max</span>(<span class="built_in">case_1</span>(), <span class="built_in">case_2</span>());</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h5 id="错误分析"><a href="#错误分析" class="headerlink" title="错误分析"></a>错误分析</h5><ul>
+<li><p><strong>问题根源：</strong><br>算法的理论模型正确，但代码实现未处理一个由 <strong>非空</strong> 约束引发的特殊情况。该问题在输入数组 <strong>全为负数</strong> 的测试点上触发。</p>
+</li>
+<li><p><strong>失败机理：</strong></p>
+<ol>
+<li>当数组全为负数时，为使和最小，算法会选择尽可能多的元素。因此，计算出的 <strong>链上最小两段和</strong> 等于 <strong>数组总和</strong>。</li>
+<li>此时，<code>case_2()</code> 函数的计算 <code>total_a - min_val</code> 变为 <code>total_a - total_a</code>，结果为 <code>0</code>。</li>
+<li>根据 <strong>非空</strong> 约束，对于全负数组，任意两段非空子段的和必须为负数。<code>case_1()</code> 会正确计算出这个负数的最优解。</li>
+<li>最终，<code>main</code> 函数在 <code>max(一个正确的负数, 0)</code> 的比较中，会错误地选择 <code>0</code>。</li>
+<li>这个结果 <code>0</code> 对应于 <strong>未选中全部元素</strong> 的情况，即 <strong>选中了空集</strong>，这与题目的 <strong>非空</strong> 约束相悖。</li>
+</ol>
+</li>
+</ul>
+<h4 id="V2-0-修正实现-AC"><a href="#V2-0-修正实现-AC" class="headerlink" title="V2.0 修正实现 (AC)"></a>V2.0 修正实现 (AC)</h4><h5 id="设计-1"><a href="#设计-1" class="headerlink" title="设计"></a>设计</h5><p>问题已明确：当 <strong>链上最小两段和 &#x3D;&#x3D; 数组总和</strong> 时，<code>case_2()</code> 会产生一个违反约束的无效解 <code>0</code>。</p>
+<p>修正的目标是：识别此情况，并确保该无效解不被选为最终答案。</p>
+<ul>
+<li><strong>解决方案</strong>: 修改 <code>case_2()</code> 函数的返回值。当 <code>total_a == min_val</code> 的条件成立时，函数不返回 <code>0</code>，而是返回一个理论上的极小值 <code>LLONG_MIN</code>。</li>
+<li><strong>效果</strong>: 任何合法的解（即使是负数）都必然大于 <code>LLONG_MIN</code>。因此，在最终的 <code>max</code> 比较中，<code>case_1()</code> 计算出的合法解会自动取代 <code>case_2()</code> 返回的 <code>LLONG_MIN</code>，从而保证结果的正确性。</li>
+</ul>
+<img src="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/3.jpg" class="" title="手稿2">
+
+<h5 id="实现-1"><a href="#实现-1" class="headerlink" title="实现"></a>实现</h5><img src="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/5.png" class="" title="AC提交记录">
+
+<p><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/record/244799731">AC提交记录</a></p>
+<details>
+<summary>点击展开/折叠 V2.0 AC代码</summary>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="keyword">using</span> ll = <span class="type">long</span> <span class="type">long</span>;</span><br><span class="line">ll <span class="type">const</span> maxn = <span class="number">2e5</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> n;</span><br><span class="line">ll total_a, a[maxn], max_L_to_R[maxn], dp_max_L_to_R[maxn], max_R_to_L[maxn], dp_max_R_to_L[maxn], min_L_to_R[maxn], dp_min_L_to_R[maxn], min_R_to_L[maxn], dp_min_R_to_L[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">find_L_to_R</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll max_val = LLONG_MIN, min_val = LLONG_MAX;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        dp_max_L_to_R[i] = <span class="built_in">max</span>(dp_max_L_to_R[i - <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        max_val = <span class="built_in">max</span>(max_val, dp_max_L_to_R[i]);</span><br><span class="line">        max_L_to_R[i] = max_val;</span><br><span class="line">        dp_min_L_to_R[i] = <span class="built_in">min</span>(dp_min_L_to_R[i - <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        min_val = <span class="built_in">min</span>(min_val, dp_min_L_to_R[i]);</span><br><span class="line">        min_L_to_R[i] = min_val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">find_R_to_L</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll max_val = LLONG_MIN, min_val = LLONG_MAX;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = n; i &gt;= <span class="number">1</span>; --i) &#123;</span><br><span class="line">        dp_max_R_to_L[i] = <span class="built_in">max</span>(dp_max_R_to_L[i + <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        max_val = <span class="built_in">max</span>(max_val, dp_max_R_to_L[i]);</span><br><span class="line">        max_R_to_L[i] = max_val;</span><br><span class="line">        dp_min_R_to_L[i] = <span class="built_in">min</span>(dp_min_R_to_L[i + <span class="number">1</span>] + a[i], a[i]);</span><br><span class="line">        min_val = <span class="built_in">min</span>(min_val, dp_min_R_to_L[i]);</span><br><span class="line">        min_R_to_L[i] = min_val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">case_1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll max_val = LLONG_MIN;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        max_val = <span class="built_in">max</span>(max_val, max_L_to_R[i] + max_R_to_L[i + <span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> max_val;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">ll <span class="title">case_2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ll min_val = LLONG_MAX;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        min_val = <span class="built_in">min</span>(min_val, min_L_to_R[i] + min_R_to_L[i + <span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> total_a == min_val ? LLONG_MIN : total_a - min_val;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">NULL</span>);</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">        total_a += a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">find_L_to_R</span>();</span><br><span class="line">    <span class="built_in">find_R_to_L</span>();</span><br><span class="line">    cout &lt;&lt; <span class="built_in">max</span>(<span class="built_in">case_1</span>(), <span class="built_in">case_2</span>());</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<ul>
+<li><p><strong>实现细节剖析</strong><br>核心改动位于 <code>case_2()</code> 函数的返回语句：<br><code>return total_a == min_val ? LLONG_MIN : total_a - min_val;</code><br>该行代码使用三元运算符，将对特殊情况的判断和处理封装在函数内部，解决了问题。</p>
+</li>
+<li><p><strong>健壮性提升</strong><br><code>AC</code>代码将所有用于初始化的极大&#x2F;极小值，从硬编码的数值（如<code>1e9</code>）替换为标准库 <code>&lt;climits&gt;</code> 中定义的 <code>LLONG_MAX</code> 和 <code>LLONG_MIN</code>。这使代码不依赖于对题目数据范围的假设，提高了通用性和健壮性。</p>
+</li>
+</ul>
+<hr>
+<p><strong>P.S.</strong> 完整手稿</p>
+<img src="/2025/11/03/Luogu-P1133-CircularTwoSegmentSum/6.jpg" class="" title="手稿">
+
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><strong>环形问题处理方法</strong>：<strong>分类讨论</strong> 结合 <strong>对偶思想</strong> 是处理此类环形数组问题的有效方法，可将问题转化为线性空间下的计算。</li>
+<li><strong>边界情况的重要性</strong>：必须分析 <strong>全正</strong>、<strong>全负</strong> 等特殊数据集。题目的 <strong>非空</strong> 等约束，在这些边界情况下是决定算法正确性的关键。</li>
+<li><strong>一种处理无效解的技巧</strong>：当算法的一个分支可能产生逻辑上无效的解时，可以使其返回一个在最终聚合操作（如<code>max</code>或<code>min</code>）中必定会被淘汰的值（如<code>LLONG_MIN</code>或<code>LLONG_MAX</code>），从而避免复杂的外部逻辑判断。</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
