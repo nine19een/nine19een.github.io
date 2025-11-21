@@ -132,7 +132,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -141,7 +141,7 @@
         <span class="site-state-item-name">分类</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -158,6 +158,500 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/11/21/cf1065-xor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="nine19een">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="nine19een's Blog">
+      <meta itemprop="description" content="记录学习过程中的思考、题解与复盘">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | nine19een's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/11/21/cf1065-xor/" class="post-title-link" itemprop="url">CF1065-C1/C2·复盘——浅谈 XOR 与博弈中的最高有效位</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-11-21 22:00:00" itemprop="dateCreated datePublished" datetime="2025-11-21T22:00:00+08:00">2025-11-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-11-22 00:19:00" itemprop="dateModified" datetime="2025-11-22T00:19:00+08:00">2025-11-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%AE%97%E6%B3%95%E9%A2%98%E8%A7%A3-%E5%A4%8D%E7%9B%98/" itemprop="url" rel="index"><span itemprop="name">算法题解/复盘</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <img src="/2025/11/21/cf1065-xor/3.gif" class="" title="XOR 博弈封面图">
+
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这一次的 CF1065 C1&#x2F;C2，是一对非常具有代表性的 XOR 博弈题。</p>
+<p>在比赛当时，这两题看上去像是在操作数组、模拟交换，但真正的本质来自一个非常稳定的结构：</p>
+<ul>
+<li>一个在整个游戏过程中保持不变的整体异或 <code>T</code></li>
+<li>一个决定双方 XOR 大小关系的最高有效位（msb）</li>
+<li>以及一个能改变局势的“最后的关键下标”</li>
+</ul>
+<p>C1 是单 bit 游戏，C2 是多 bit 游戏，但二者的本质高度统一，甚至 C2 可以视为 C1 的自然推广。</p>
+<p>文章会以“复盘 + 结构化分析”的方式来讲：</p>
+<ul>
+<li><strong>C1：理解最简 XOR 博弈</strong>（0&#x2F;1）</li>
+<li><strong>C2：推广到 general XOR 博弈</strong>（≤10⁶）</li>
+<li><strong>最后给出整个 XOR 博弈体系的总结</strong></li>
+</ul>
+<p>期间也会穿插 ASCII 示意图，帮助理解<strong>关键下标</strong>、<strong>最高有效位</strong>等结构。</p>
+<p>下面进入正文。</p>
+<hr>
+<h2 id="C1-Renako-Amaori-and-XOR-Game-Easy-Version"><a href="#C1-Renako-Amaori-and-XOR-Game-Easy-Version" class="headerlink" title="C1. Renako Amaori and XOR Game (Easy Version)"></a><a target="_blank" rel="noopener" href="https://codeforces.com/contest/2171/problem/C1">C1. Renako Amaori and XOR Game (Easy Version)</a></h2><h3 id="题面"><a href="#题面" class="headerlink" title="题面"></a>题面</h3><img src="/2025/11/21/cf1065-xor/1.jpeg" class="" title="C1题面">
+
+<h3 id="题目翻译"><a href="#题目翻译" class="headerlink" title="题目翻译"></a>题目翻译</h3><p>给定两个长度为 <code>n</code> 的数组 <code>a</code> 与 <code>b</code>，其中所有元素均为 <code>0</code> 或 <code>1</code>。<br>游戏共进行 <code>n</code> 回合：</p>
+<ul>
+<li>若 <code>i</code> 为奇数，则由 Ajisai 操作；</li>
+<li>若 <code>i</code> 为偶数，则由 Mai 操作。</li>
+</ul>
+<p>在第 <code>i</code> 回合，操作者可以选择：</p>
+<ul>
+<li>交换 <code>a[i]</code> 与 <code>b[i]</code>，或</li>
+<li>什么也不做（pass）</li>
+</ul>
+<p>游戏结束后，评分如下：</p>
+<ul>
+<li>Ajisai 的分数为：<code>a[1] ⊕ a[2] ⊕ ... ⊕ a[n]</code></li>
+<li>Mai 的分数为：<code>b[1] ⊕ b[2] ⊕ ... ⊕ b[n]</code></li>
+</ul>
+<p>若分数不同，分数大的获胜；若分数相同，则为平局。</p>
+<h3 id="整体异或不变量"><a href="#整体异或不变量" class="headerlink" title="整体异或不变量"></a>整体异或不变量</h3><p>任何一次交换都只是在同一个下标 <code>i</code> 位置交换 <code>a[i]</code> 与 <code>b[i]</code>。<br>这种操作不会改变 <code>a</code> 与 <code>b</code> 这两个序列中全部元素的集合，因此：</p>
+<p><code>T = a 全体 ⊕ b 全体</code></p>
+<p>在整个游戏过程中保持不变（这是整个 C1&#x2F;C2 的基础结构）。</p>
+<p>同时还成立：</p>
+<p><code>T = Ajisai_score ⊕ Mai_score</code></p>
+<p>这意味着最终的胜负情况只由 <code>T</code> 决定。</p>
+<ul>
+<li><p>若 <code>T = 0</code><br>→ 两人的最终 XOR 完全相同<br>→ 游戏必为平局</p>
+</li>
+<li><p>若 <code>T = 1</code><br>→ 两人的最终 XOR 不可能相同<br>→ 必然分出胜负</p>
+</li>
+</ul>
+<p>这一步是 C1 的基础，也是后续 C2 的关键出发点。</p>
+<p>接下来进入 C1 的错误思路复盘。</p>
+<h3 id="错误解法复盘：误以为“奇偶位置数量”决定胜负"><a href="#错误解法复盘：误以为“奇偶位置数量”决定胜负" class="headerlink" title="错误解法复盘：误以为“奇偶位置数量”决定胜负"></a>错误解法复盘：误以为“奇偶位置数量”决定胜负</h3><p>比赛时我最初写出的思路，是基于“统计差异所在的奇数位和偶数位数量”来判断谁能获胜：</p>
+<ul>
+<li><p>如果在 <strong>奇数位</strong>（Ajisai 能操作的位置）出现更多 <code>a[i] != b[i]</code> 的情况<br>→ Ajisai 更能“影响局势”，认为 Ajisai 会赢</p>
+</li>
+<li><p>如果在 <strong>偶数位</strong>（Mai 的回合）出现更多差异<br>→ Mai 会赢</p>
+</li>
+<li><p>如果数量相同，则认为是平局</p>
+</li>
+</ul>
+<p>这是一个看似合理、实际上完全错误的判断。</p>
+<h4 id="C1-WA-code（我当时的版本）"><a href="#C1-WA-code（我当时的版本）" class="headerlink" title="C1 WA code（我当时的版本）"></a>C1 WA code（我当时的版本）</h4><details>
+<summary>C1 WA code</summary>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">int</span> <span class="type">const</span> maxn = <span class="number">2e5</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> t, a[maxn], b[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">op</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> n, cnt_odd = <span class="number">0</span>, cnt_even = <span class="number">0</span>;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i)&#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++)&#123;</span><br><span class="line">        cin &gt;&gt; b[i];</span><br><span class="line">        <span class="keyword">if</span>(a[i] != b[i])&#123;</span><br><span class="line">            <span class="keyword">if</span>(i &amp; <span class="number">1</span>)&#123;</span><br><span class="line">                cnt_odd++;</span><br><span class="line">            &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">                cnt_even++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(cnt_odd &gt; cnt_even)&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Ajisai&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(cnt_odd &lt; cnt_even)&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Mai&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Tie&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">nullptr</span>);</span><br><span class="line">    cin &gt;&gt; t;</span><br><span class="line">    <span class="keyword">while</span>(t--)&#123;</span><br><span class="line">        <span class="built_in">op</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<h3 id="错误原因分析"><a href="#错误原因分析" class="headerlink" title="错误原因分析"></a>错误原因分析</h3><p>根本问题在于：<br><strong>XOR 的胜负由唯一的关键下标决定，不由“数量”决定。</strong></p>
+<p>在 C1 中，所有元素都是 <code>0/1</code>，若整体异或 <code>T = 1</code>，说明最终两人的分数一高一低，而大小关系由“最后一个能翻转该位的下标”决定。</p>
+<p>也就是说：</p>
+<blockquote>
+<p>XOR 的比较不是累计效应，而是“最后一手效果”。</p>
+</blockquote>
+<p>为了更直观地说明问题，我们加入 ASCII 示意图。</p>
+<h4 id="示意图（差异位置从后往前扫描）"><a href="#示意图（差异位置从后往前扫描）" class="headerlink" title="示意图（差异位置从后往前扫描）"></a>示意图（差异位置从后往前扫描）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">i = 9   a=1 b=1</span><br><span class="line">i = 8   a=0 b=0</span><br><span class="line">i = 7   a=1 b=0   ← 最后一个差异，决定胜负</span><br><span class="line">i = 6   a=0 b=0</span><br><span class="line">i = 5   a=1 b=1</span><br><span class="line">i = 4   a=0 b=0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<ul>
+<li>下标越靠后，越决定最终的异或结果</li>
+<li>只要在 <code>i = 7</code> 这里能动手，后面已无下标能覆盖它</li>
+</ul>
+<p>因此：</p>
+<ul>
+<li>若 <strong>最后的差异位</strong> 是奇数 → Ajisai 操作 → Ajisai 赢 （如示意图所示）</li>
+<li>若 <strong>最后的差异位</strong> 是偶数 → Mai 操作 → Mai 赢</li>
+</ul>
+<p>无论前面有多少差异位，都被这个 <strong>最后的差异位</strong> 所覆盖。</p>
+<h4 id="为什么统计数量会产生误导？"><a href="#为什么统计数量会产生误导？" class="headerlink" title="为什么统计数量会产生误导？"></a>为什么统计数量会产生误导？</h4><p>因为 <code>a[i] != b[i]</code> 是否出现多次完全不重要。<br>决定 XOR 大小关系的不是次数，而是：</p>
+<blockquote>
+<p>最后一个能改变哪一位的人是谁。</p>
+</blockquote>
+<p>在 C1 中，这个最后位置就是“最后一个差异点”。<br>由于 XOR 是按位运算，且 C1 只有一位（只有 <code>0/1</code>），因此：</p>
+<ul>
+<li>若 <code>a[i] != b[i]</code> 在 <code>i = k</code> 处是最后一次出现</li>
+<li>那么 k 的操作者可以决定自己的最终 XOR 是 <code>1</code> 还是 <code>0</code></li>
+</ul>
+<p>从而直接确定胜负。</p>
+<h4 id="错误点总结"><a href="#错误点总结" class="headerlink" title="错误点总结"></a>错误点总结</h4><ol>
+<li>XOR 的大小不累加，受最后关键位影响</li>
+<li>C1 只有一个 bit，所以只需找“最后一个差异位置”</li>
+<li>差异出现次数完全不影响胜负</li>
+<li>正确策略必须基于“顺序博弈 + 最后一手控制权”</li>
+</ol>
+<p>接下来进入 C1 的正确解法。</p>
+<h3 id="C1-正确解法：最后一个差异下标的操作者获胜"><a href="#C1-正确解法：最后一个差异下标的操作者获胜" class="headerlink" title="C1 正确解法：最后一个差异下标的操作者获胜"></a>C1 正确解法：最后一个差异下标的操作者获胜</h3><p>C1 的核心在于：<br>当整体异或 <code>T = 1</code> 时，最终异或的大小完全由 <strong>最后一个能翻转该位的位置</strong> 决定。</p>
+<p>我们已经在错误分析中看到：<br>只要知道差异的“最后一个下标”，就能判断胜负。</p>
+<p>现在来严格说明这一结构。</p>
+<h3 id="1-当-T-1-时，胜负由最后一个差异下标决定"><a href="#1-当-T-1-时，胜负由最后一个差异下标决定" class="headerlink" title="1. 当 T &#x3D; 1 时，胜负由最后一个差异下标决定"></a>1. 当 T &#x3D; 1 时，胜负由最后一个差异下标决定</h3><p>在 C1 中，所有元素都是 <code>0</code> 或 <code>1</code>。<br>最终的分数为：</p>
+<ul>
+<li><code>Ajisai_score = a[1] ⊕ ... ⊕ a[n]</code></li>
+<li><code>Mai_score = b[1] ⊕ ... ⊕ b[n]</code></li>
+</ul>
+<p>因为 <code>T = Ajisai_score ⊕ Mai_score</code> 且 <code>T = 1</code>，<br>两者的分数必然一为 <code>0</code>、一为 <code>1</code>。</p>
+<p>问题变为：</p>
+<blockquote>
+<p>谁能决定某个位置的值在最终 XOR 中是否被计为 <code>1</code>？</p>
+</blockquote>
+<h4 id="XOR-的按位独立性使得“顺序”变得关键"><a href="#XOR-的按位独立性使得“顺序”变得关键" class="headerlink" title="XOR 的按位独立性使得“顺序”变得关键"></a>XOR 的按位独立性使得“顺序”变得关键</h4><p>对于序列 <code>a</code>：</p>
+<p><code>最终 a 的 XOR = (((a[1] ⊕ a[2]) ⊕ a[3]) ... ⊕ a[n])</code></p>
+<p>如果我们从左到右分析：</p>
+<ul>
+<li>一个靠后的元素，其取值变化会覆盖所有更前面元素的影响</li>
+<li>若前面某个差异位曾试图翻转结果，只要后面存在新的差异位，就可以再次翻转回来</li>
+</ul>
+<p>于是结论自然形成：</p>
+<blockquote>
+<p>在 C1 中，最后一个 <code>a[i] != b[i]</code> 的位置，是唯一有决定权的位置。</p>
+</blockquote>
+<h3 id="2-ASCII-示意图"><a href="#2-ASCII-示意图" class="headerlink" title="2. ASCII 示意图"></a>2. ASCII 示意图</h3><p>下面是完整示意图（同上，但放在正确解法体系中）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">i = 9   a=1 b=1</span><br><span class="line">i = 8   a=0 b=0</span><br><span class="line">i = 7   a=1 b=0   ← 决胜点（最末一个差异）</span><br><span class="line">i = 6   a=0 b=0</span><br><span class="line">i = 5   a=1 b=1</span><br><span class="line">i = 4   a=0 b=0</span><br><span class="line">i = 3   a=1 b=1</span><br><span class="line">i = 2   a=0 b=0</span><br><span class="line">i = 1   a=1 b=1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>因为下标 <code>7</code> 是最后一个差异点</li>
+<li>7 是奇数 → 该回合由 Ajisai 操作</li>
+<li>Ajisai 可以通过“交换 &#x2F; 不交换”来决定 <code>a[7]</code> 是否变为 <code>1</code> 或 <code>0</code></li>
+</ul>
+<p>从而决定最终自己的 XOR 是否为 <code>1</code><br>→ 决定胜负。</p>
+<p>若最后的差异下标是偶数，则由 Mai 控制。</p>
+<h3 id="3-正确解法结论化"><a href="#3-正确解法结论化" class="headerlink" title="3. 正确解法结论化"></a>3. 正确解法结论化</h3><p>所以，在 C1 中：</p>
+<ul>
+<li>扫描从后往前找最后一个 <code>a[i] != b[i]</code> 的下标 <code>i</code></li>
+<li>若不存在，则 <code>T = 0</code> → 平局</li>
+<li>若存在：<ul>
+<li><code>i</code> 为奇数 → Ajisai 胜</li>
+<li><code>i</code> 为偶数 → Mai 胜</li>
+</ul>
+</li>
+</ul>
+<p>这是 C1 的完整正确解法。</p>
+<h3 id="4-C1-AC-code"><a href="#4-C1-AC-code" class="headerlink" title="4. C1 AC code"></a>4. C1 AC code</h3><p><strong>说明</strong>：</p>
+<p>下方给出的 AC 代码是我在比赛现场写出的实现方式：<br>逻辑正确，但偏向个人习惯，与本文推导出的理论模型略有差异。<br>在后续 C2 中，我会给出完全按本文结构写出的“规范解法版本”。</p>
+<details>
+<summary>C1 AC Code</summary>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">int</span> <span class="type">const</span> maxn = <span class="number">2e5</span> + <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> t, a[maxn], b[maxn];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">op</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> n, cnt_odd = <span class="number">0</span>, cnt_even = <span class="number">0</span>, cnt_1 = <span class="number">0</span>;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">        cnt_1 += a[i] ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        cin &gt;&gt; b[i];</span><br><span class="line">        cnt_1 += b[i] ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!(cnt_1 &amp; <span class="number">1</span>)) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;Tie&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">bool</span> last_person; <span class="comment">//1-&gt;odd 0-&gt;even</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = n; i &gt;= <span class="number">1</span>; --i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (a[i] != b[i]) &#123;</span><br><span class="line">                last_person = (i &amp; <span class="number">1</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (last_person) &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;Ajisai&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            cout &lt;&lt; <span class="string">&quot;Mai&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">nullptr</span>);</span><br><span class="line">    cin &gt;&gt; t;</span><br><span class="line">    <span class="keyword">while</span> (t--) &#123;</span><br><span class="line">        <span class="built_in">op</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<hr>
+<h2 id="C2-Renako-Amaori-and-XOR-Game-hard-version"><a href="#C2-Renako-Amaori-and-XOR-Game-hard-version" class="headerlink" title="C2. Renako Amaori and XOR Game (hard version)"></a><a target="_blank" rel="noopener" href="https://codeforces.com/contest/2171/problem/C2">C2. Renako Amaori and XOR Game (hard version)</a></h2><h3 id="题面-1"><a href="#题面-1" class="headerlink" title="题面"></a>题面</h3><img src="/2025/11/21/cf1065-xor/2.jpeg" class="" title="C2题面">
+
+<h3 id="题目翻译-1"><a href="#题目翻译-1" class="headerlink" title="题目翻译"></a>题目翻译</h3><p>这一题是 C1 的加强版。<br>给定两个长度为 <code>n</code> 的数组 <code>a</code> 与 <code>b</code>，满足 <code>0 ≤ a[i], b[i] ≤ 10^6</code>。</p>
+<p>游戏仍然进行 <code>n</code> 回合：</p>
+<ul>
+<li>若 <code>i</code> 为奇数，则该回合由 Ajisai 操作；</li>
+<li>若 <code>i</code> 为偶数，则该回合由 Mai 操作。</li>
+</ul>
+<p>在第 <code>i</code> 回合，轮到的玩家可以选择：</p>
+<ul>
+<li>交换 <code>a[i]</code> 与 <code>b[i]</code>，或者</li>
+<li>什么也不做（pass）</li>
+</ul>
+<p>游戏结束后，得分为：</p>
+<ul>
+<li>Ajisai 的分数：<code>a[1] ⊕ a[2] ⊕ ... ⊕ a[n]</code></li>
+<li>Mai 的分数：<code>b[1] ⊕ b[2] ⊕ ... ⊕ b[n]</code></li>
+</ul>
+<p>分数更大者获胜，若分数相同则为平局。</p>
+<p>与 C1 不同之处在于，这里 <code>a[i]</code> 和 <code>b[i]</code> 不再局限于 <code>0/1</code>，而是可以达到 <code>10^6</code>，也就是包含了更多二进制位，<code>T</code> 不再只可能是 <code>0</code> 或 <code>1</code>，而是一个多 bit 的整数。</p>
+<h3 id="整体异或不变量（与-C1-相同的骨架）"><a href="#整体异或不变量（与-C1-相同的骨架）" class="headerlink" title="整体异或不变量（与 C1 相同的骨架）"></a>整体异或不变量（与 C1 相同的骨架）</h3><p>和 C1 完全一样，所有操作只在同一位置的 <code>a[i]</code> 与 <code>b[i]</code> 之间做交换，不会引入新数或删除旧数，因此：</p>
+<p><code>T = a 全体 ⊕ b 全体</code></p>
+<p>在整个游戏过程中仍然是一个不变量。</p>
+<p>并且依然有：</p>
+<p><code>T = Ajisai_score ⊕ Mai_score</code></p>
+<p>所以：</p>
+<ul>
+<li><p>若 <code>T = 0</code><br>→ 两人的最终得分完全相同<br>→ 游戏必为 <code>Tie</code></p>
+</li>
+<li><p>若 <code>T ≠ 0</code><br>→ 两人的最终得分一定不同<br>→ 必分胜负</p>
+</li>
+</ul>
+<p>到这里为止，C2 与 C1 的结构是同一套骨架：<br>只要整体异或为 <code>0</code>，游戏就没有悬念，直接平局。<br>当整体异或不为 <code>0</code>，问题就变成：<strong>谁能把最终的数值拉大到对自己有利</strong>。</p>
+<p>区别在于：C1 中我们只需要处理一个 bit（0&#x2F;1），而 C2 中要面对的是一个多 bit 整数。</p>
+<h3 id="为什么只看最高有效位（msb）"><a href="#为什么只看最高有效位（msb）" class="headerlink" title="为什么只看最高有效位（msb）"></a>为什么只看最高有效位（msb）</h3><p>当 <code>T ≠ 0</code> 时，<code>T</code> 是一个多 bit 的整数，例如：</p>
+<p><code>T = 0010 1000 0100₂</code></p>
+<p>这意味着在多个 bit 上，Ajisai 与 Mai 的最终结果存在差异。</p>
+<p>但是，对于两个整数的比较，有一个非常重要的事实：</p>
+<blockquote>
+<p>两个整数的大小，只由它们在“最高一个不同的二进制位”上的值决定。</p>
+</blockquote>
+<p>也就是说：</p>
+<ul>
+<li>找到 <code>Ajisai_score</code> 与 <code>Mai_score</code> 在最高一个不同的 bit</li>
+<li>在这个 bit 上谁是 <code>1</code>、谁是 <code>0</code>，谁就赢</li>
+<li>在此之下的所有更低位，统一统统不重要</li>
+</ul>
+<p>而由于：</p>
+<p><code>Ajisai_score ⊕ Mai_score = T</code></p>
+<p>那么 <code>T</code> 在某一 bit 上为 <code>1</code>，就说明双方在这一位上必然不同。<br>特别地，在 <code>T</code> 的最高有效位（记作 <code>msb</code>）上，两人的得分在该位必然一高一低，并且这一位决定最终大小。</p>
+<p>用一个 ASCII 示意图表示 <code>T</code> 的 bit 分布（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bit11 bit10 bit9 ... bit3 bit2 bit1 bit0</span><br><span class="line">  1     0    1        0    1    0    0</span><br><span class="line">  ↑</span><br><span class="line">  msb（最高有效位）</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>bit11</code> 这个位置上，<code>T</code> 为 <code>1</code>，代表：</p>
+<ul>
+<li><code>Ajisai_score</code> 与 <code>Mai_score</code> 在 <code>bit11</code> 这一位上不相同</li>
+<li>并且 <code>bit11</code> 是它们“从高到低第一个不相同的位”</li>
+</ul>
+<p>因此：</p>
+<ul>
+<li>谁能控制最终在 <code>bit11</code> 上取 <code>1</code>，谁就拥有整个数值比较上的优势</li>
+<li>低位的翻转（<code>bit10</code> 以下）不会推翻这条结论</li>
+</ul>
+<p>换句话说，C2 虽然是多 bit 情况，但在博弈结构上 <strong>仍然退化成对 <code>msb</code> 这一位的控制问题</strong>：</p>
+<blockquote>
+<p>C2 的本质是：在最高有效位 <code>msb</code> 上进行一场 C1 风格的博弈。</p>
+</blockquote>
+<p>后面的分析要做的，就是精确刻画：<br><strong>谁拥有对这一位的“最后一次操作权”，也就是谁能在这一位上做出最终决策。</strong></p>
+<h3 id="寻找能影响-msb-的最大下标-i-max"><a href="#寻找能影响-msb-的最大下标-i-max" class="headerlink" title="寻找能影响 msb 的最大下标 i_max"></a>寻找能影响 msb 的最大下标 <code>i_max</code></h3><p>我们已经知道：</p>
+<ul>
+<li>胜负由 <code>T</code> 的最高有效位 <code>msb</code> 决定</li>
+<li>双方的 XOR 在这一位上必然不同</li>
+<li>谁能控制最终这一位取值为 <code>1</code>，谁就赢</li>
+</ul>
+<p>现在的问题是：</p>
+<blockquote>
+<p>哪些下标 <code>i</code> 能影响 <code>msb</code> 这一位？<br>谁是最后一个能影响它的人？</p>
+</blockquote>
+<h4 id="关键判定条件"><a href="#关键判定条件" class="headerlink" title="关键判定条件"></a>关键判定条件</h4><p>在下标 <code>i</code>，交换与否会造成 <code>msb</code> 这一位的翻转，当且仅当：</p>
+<p><code>((a[i] ⊕ b[i]) &gt;&gt; msb) &amp; 1 == 1</code></p>
+<p>这句话的含义是：</p>
+<ul>
+<li><code>a[i] ⊕ b[i]</code> 在 <code>msb</code> 位上为 1</li>
+<li>表示如果交换 <code>a[i]</code> 与 <code>b[i]</code>，那么这一位的贡献会发生改变</li>
+<li>因此该下标可以真实影响最终比分的最高位</li>
+</ul>
+<p>我们称这样的下标为：</p>
+<blockquote>
+<p>“影响 msb 的有效下标”</p>
+</blockquote>
+<h4 id="为什么必须找“最大”的这样的下标？"><a href="#为什么必须找“最大”的这样的下标？" class="headerlink" title="为什么必须找“最大”的这样的下标？"></a>为什么必须找“最大”的这样的下标？</h4><p>因为游戏从 1 到 n 顺序进行，越靠后的回合越晚出现。<br>假设有下面五个可能影响 msb 的下标：</p>
+<p><code>i = 2, 5, 8, 11, 14</code></p>
+<p>真正能决定胜负的只有：</p>
+<ul>
+<li><strong>最后一个</strong>（即 <code>14</code>）</li>
+<li>因为它会覆盖前面所有的决策效果</li>
+<li>前面的影响都会被“后继修改”覆盖掉（同 C1）</li>
+</ul>
+<p>换句话说：</p>
+<blockquote>
+<p><code>i_max = 最后一个能影响 msb 的下标</code><br>是本题的唯一关键点。</p>
+</blockquote>
+<h3 id="ASCII-示意图（图示-3）"><a href="#ASCII-示意图（图示-3）" class="headerlink" title="ASCII 示意图（图示 #3）"></a>ASCII 示意图（图示 #3）</h3><p>下面以一个示例说明：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">i = 12   (a⊕b 在 msb 位为 1)</span><br><span class="line">i = 11   (a⊕b 在 msb 位为 0)</span><br><span class="line">i = 10   (a⊕b 在 msb 位为 1)</span><br><span class="line">i =  9   (a⊕b 在 msb 位为 1)   ← i_max（最后一个能影响 msb 的位置）</span><br><span class="line">i =  8   (a⊕b 在 msb 位为 0)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>即使 <code>i = 12</code> 和 <code>i = 10</code> 也能影响 <code>msb</code> 位，<br>但它们最终都被 <code>i = 9</code> 的操作“覆盖”了：</p>
+<ul>
+<li>游戏在第 9 回合有最后一次能够改变 msb 的机会</li>
+<li>之后再没有任何下标能影响 msb</li>
+<li>所以 <code>i = 9</code> 的操作者可以决定胜负</li>
+</ul>
+<h3 id="与-C1-的对应关系"><a href="#与-C1-的对应关系" class="headerlink" title="与 C1 的对应关系"></a>与 C1 的对应关系</h3><p>到这里可以看到，C2 的结构与 C1 完全对应：</p>
+<table>
+<thead>
+<tr>
+<th>C1 （0&#x2F;1）</th>
+<th>C2（多 bit）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>最后一个 <code>a[i] != b[i]</code></td>
+<td>最后一个 <code>(a[i] ⊕ b[i])</code> 在 <code>msb</code> 位上为 1</td>
+</tr>
+<tr>
+<td>决定 XOR 的唯一位置</td>
+<td>决定最高有效位的唯一位置</td>
+</tr>
+<tr>
+<td>该位置的操作者获胜</td>
+<td>该位置的操作者获胜</td>
+</tr>
+</tbody></table>
+<p>可以理解为：</p>
+<ul>
+<li>C1 是一个“一维博弈”</li>
+<li>C2 是一个“按 bit 拆开的多维博弈”，但胜负只看最高一维</li>
+</ul>
+<h3 id="如何根据-i-max-决定胜负"><a href="#如何根据-i-max-决定胜负" class="headerlink" title="如何根据 i_max 决定胜负"></a>如何根据 <code>i_max</code> 决定胜负</h3><p>规则非常简单：</p>
+<ul>
+<li><p>若 <code>i_max</code> 为奇数<br>→ Ajisai 操作<br>→ Ajisai 可以控制 msb 位置取 <code>1</code><br>→ <strong>Ajisai 获胜</strong></p>
+</li>
+<li><p>若 <code>i_max</code> 为偶数<br>→ Mai 操作<br>→ Mai 可以控制 msb 位置取 <code>1</code><br>→ <strong>Mai 获胜</strong></p>
+</li>
+</ul>
+<p>这就是 C2 的最终结论。</p>
+<h3 id="C2-算法流程与复杂度分析"><a href="#C2-算法流程与复杂度分析" class="headerlink" title="C2 算法流程与复杂度分析"></a>C2 算法流程与复杂度分析</h3><p>把前面的分析收束成一个完整的实现流程，大致可以写成如下步骤：</p>
+<ol>
+<li>读入 <code>n</code>，以及数组 <code>a</code>、<code>b</code></li>
+<li>计算整体异或 <code>T</code>：<ul>
+<li><code>T ^= a[i]</code></li>
+<li><code>T ^= b[i]</code></li>
+</ul>
+</li>
+<li>若 <code>T = 0</code>：<ul>
+<li>直接输出 <code>Tie</code>，因为此时两人的最终分数必然相等</li>
+</ul>
+</li>
+<li>若 <code>T ≠ 0</code>：<ul>
+<li>在 <code>0 ~ 20</code> 的 bit 范围内，找到 <code>T</code> 的最高有效位 <code>msb</code></li>
+<li>这一位是唯一决定胜负的关键 bit</li>
+</ul>
+</li>
+<li>从后往前扫下标 <code>i = n ... 1</code>：<ul>
+<li>判断 <code>(a[i] ⊕ b[i])</code> 的 <code>msb</code> 位是否为 <code>1</code></li>
+<li>若是，则记录该 <code>i</code> 为 <code>i_max</code>，并停止扫描</li>
+</ul>
+</li>
+<li>根据 <code>i_max</code> 的奇偶性输出胜负：<ul>
+<li>若 <code>i_max</code> 为奇数 → Ajisai</li>
+<li>若 <code>i_max</code> 为偶数 → Mai</li>
+</ul>
+</li>
+</ol>
+<h4 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><ul>
+<li>计算整体异或 <code>T</code>：<code>O(n)</code></li>
+<li>找 <code>msb</code>：bit 扫描，<code>O(log T)</code>，在本题中约为常数（约 20）</li>
+<li>从后往前找 <code>i_max</code>：<code>O(n)</code></li>
+<li>总体时间复杂度：<code>O(n)</code></li>
+<li>空间复杂度：<code>O(n)</code>（存下 <code>a</code>、<code>b</code>）</li>
+</ul>
+<p>在 <code>n</code> 最多 <code>2 * 10^5</code> 的条件下，这个复杂度完全可以通过所有测试。</p>
+<h3 id="C2-AC-code"><a href="#C2-AC-code" class="headerlink" title="C2 AC code"></a>C2 AC code</h3><details>
+<summary>C2 AC Code</summary>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> t;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">op</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> n, xor_sum = <span class="number">0</span>, msb;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">a</span><span class="params">(n + <span class="number">5</span>)</span>, <span class="title">b</span><span class="params">(n + <span class="number">5</span>)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        cin &gt;&gt; a[i];</span><br><span class="line">        xor_sum ^= a[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">        cin &gt;&gt; b[i];</span><br><span class="line">        xor_sum ^= b[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!xor_sum) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Tie&quot;</span> &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">20</span>; i &gt;= <span class="number">0</span>; --i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="number">1</span> &amp; (xor_sum &gt;&gt; i)) &#123;</span><br><span class="line">            msb = i;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = n; i &gt; <span class="number">0</span>; --i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (((a[i] ^ b[i]) &gt;&gt; msb) &amp; <span class="number">1</span>) &#123;</span><br><span class="line">            cout &lt;&lt; ((i &amp; <span class="number">1</span>) ? <span class="string">&quot;Ajisai&quot;</span> : <span class="string">&quot;Mai&quot;</span>) &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ios_base::<span class="built_in">sync_with_stdio</span>(<span class="literal">false</span>);</span><br><span class="line">    cin.<span class="built_in">tie</span>(<span class="literal">nullptr</span>);</span><br><span class="line">    cin &gt;&gt; t;</span><br><span class="line">    <span class="keyword">while</span> (t--) &#123;</span><br><span class="line">        <span class="built_in">op</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</details>
+
+<hr>
+<h2 id="XOR-小结与博弈结构回顾（总结）"><a href="#XOR-小结与博弈结构回顾（总结）" class="headerlink" title="XOR 小结与博弈结构回顾（总结）"></a>XOR 小结与博弈结构回顾（总结）</h2><p>整篇文章从 C1（0&#x2F;1 情况）到 C2（多 bit 情况），实际上围绕的是同一个中心主题：</p>
+<blockquote>
+<p>XOR 的结构性 —— 不变量、按位独立性、最高有效位的决定性<br>以及顺序博弈中“最后一个能改变关键位的人获胜”。</p>
+</blockquote>
+<p>下面将这套结构完整收束，作为本文的最终总结。</p>
+<h3 id="1-XOR-的三个核心性质"><a href="#1-XOR-的三个核心性质" class="headerlink" title="1. XOR 的三个核心性质"></a>1. XOR 的三个核心性质</h3><p>在这两题中，真正起作用的只有 XOR 的三个基础性质：</p>
+<ul>
+<li><strong>按位独立性</strong>：高位与低位互不影响</li>
+<li><strong>异或不变量</strong>：只交换位置不改变整体 XOR</li>
+<li><strong>整数大小由最高不同位决定</strong>：这保证了 C2 只需处理 <code>msb</code> 一个 bit</li>
+</ul>
+<p>其中最关键的，是<strong>第三条</strong>：<br><strong>只要最高有效位差异已定，低位就无法影响最终大小</strong>。</p>
+<p>因此，XOR 博弈的核心往往是：</p>
+<blockquote>
+<p>找到决定关键 bit 的最后一个位置。</p>
+</blockquote>
+<h3 id="2-C1：单-bit-游戏的“最后一手控制权”"><a href="#2-C1：单-bit-游戏的“最后一手控制权”" class="headerlink" title="2. C1：单 bit 游戏的“最后一手控制权”"></a>2. C1：单 bit 游戏的“最后一手控制权”</h3><p>在 C1 中：</p>
+<ul>
+<li>所有元素均为 <code>0</code> 或 <code>1</code></li>
+<li>最终 XOR 只有一位</li>
+<li>胜负完全由最后一个 <code>a[i] != b[i]</code> 的下标决定</li>
+</ul>
+<p>这是典型的“顺序博弈 + 最后一手胜”的结构。</p>
+<h3 id="3-C2：多-bit-游戏，但仍然只需处理最高-bit"><a href="#3-C2：多-bit-游戏，但仍然只需处理最高-bit" class="headerlink" title="3. C2：多 bit 游戏，但仍然只需处理最高 bit"></a>3. C2：多 bit 游戏，但仍然只需处理最高 bit</h3><p>在 C2 中：</p>
+<ul>
+<li>元素的 bit 数更多</li>
+<li>整体 XOR <code>T</code> 是一个多 bit 整数</li>
+<li>但最终大小仍然只由 <code>T</code> 的最高有效位 <code>msb</code> 决定</li>
+</ul>
+<p>因此 C2 的实质是：</p>
+<blockquote>
+<p>在 <code>msb</code> 位上跑一遍 C1 的逻辑。</p>
+</blockquote>
+<p>具体表现为：</p>
+<ul>
+<li>寻找 <code>(a[i] ⊕ b[i])</code> 在 <code>msb</code> 位上为 <code>1</code> 的最后一个 <code>i</code></li>
+<li>该 <code>i</code> 的操作者拥有决定权</li>
+<li>奇数位 → Ajisai</li>
+<li>偶数位 → Mai</li>
+</ul>
+<p>和 C1 完全平行。</p>
+<h3 id="4-一类-XOR-博弈题的通用做法"><a href="#4-一类-XOR-博弈题的通用做法" class="headerlink" title="4. 一类 XOR 博弈题的通用做法"></a>4. 一类 XOR 博弈题的通用做法</h3><p>通过这两题，我们可以抽象出一类常见 XOR 博弈题的解法框架：</p>
+<ol>
+<li><strong>找不变量</strong>：整体 XOR 是否为固定？</li>
+<li><strong>判断平局条件</strong>：如果整体 XOR 为 0，一般直接平局</li>
+<li><strong>找关键 bit</strong>：通常是 <code>msb</code></li>
+<li><strong>定位关键下标</strong>：最后一个能影响关键 bit 的地方</li>
+<li><strong>按回合归属输出胜负</strong></li>
+</ol>
+<p>许多看似复杂的 XOR 博弈，其实都可以被拆解成这种结构。</p>
+<h3 id="5-本文的意义与后续思考"><a href="#5-本文的意义与后续思考" class="headerlink" title="5. 本文的意义与后续思考"></a>5. 本文的意义与后续思考</h3><p>这篇文章不仅解决了 C1 &#x2F; C2，也为之后处理此类问题奠定了统一视角：</p>
+<ul>
+<li>遇到异或类博弈时，先看是否有“不变量”</li>
+<li>再看是否能按 bit 拆分</li>
+<li>若能拆分，最高有效位通常是核心</li>
+<li>判断回合顺序是否决定胜负</li>
+<li>是否存在“最后一个能翻转关键位的位置”</li>
+</ul>
+<p>XOR 本身的逻辑并不复杂，但要真正理解它在博弈中的作用，需要对<br>“按位独立 + 顺序控制” 有清晰认识。</p>
+<p>以上便是本篇的全部内容。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -195,9 +689,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2025-11-03 15:00:00 / 修改时间：15:14:38" itemprop="dateCreated datePublished" datetime="2025-11-03T15:00:00+08:00">2025-11-03</time>
+      <time title="创建时间：2025-11-03 15:00:00" itemprop="dateCreated datePublished" datetime="2025-11-03T15:00:00+08:00">2025-11-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-11-21 22:00:42" itemprop="dateModified" datetime="2025-11-21T22:00:42+08:00">2025-11-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
