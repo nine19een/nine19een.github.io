@@ -19,12 +19,12 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"giscus","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="前言本文复盘洛谷 P1121 环状最大两段子段和 的解题过程。本次复盘的核心算法思路，即 分类讨论 结合 对偶思想，在初版实现中就是正确的。然而，一个由 非空 约束导致的边界情况，使得初版代码无法通过全部测试点。本文将详细分析该边界情况的触发机理，并展示如何通过一行代码进行修复，将80分的实现修正为100分的最终解。  题目分析  提炼题目要素：  布局：环形 排列。a[1] 和 a[n] 相邻。">
+    <meta name="description" content="复盘洛谷 P1121 环状最大两段子段和问题，通过分类讨论与对偶思想将环形选择转化为线性 DP，并分析非空约束下全负数组导致的边界错误与修正方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="洛谷-P1121-环状最大两段子段和·复盘——续谈环形DP">
+<meta property="og:title" content="洛谷 P1121 复盘：环状最大两段子段和与环形 DP">
 <meta property="og:url" content="http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/index.html">
 <meta property="og:site_name" content="nine19een&#39;s Blog">
-<meta property="og:description" content="前言本文复盘洛谷 P1121 环状最大两段子段和 的解题过程。本次复盘的核心算法思路，即 分类讨论 结合 对偶思想，在初版实现中就是正确的。然而，一个由 非空 约束导致的边界情况，使得初版代码无法通过全部测试点。本文将详细分析该边界情况的触发机理，并展示如何通过一行代码进行修复，将80分的实现修正为100分的最终解。  题目分析  提炼题目要素：  布局：环形 排列。a[1] 和 a[n] 相邻。">
+<meta property="og:description" content="复盘洛谷 P1121 环状最大两段子段和问题，通过分类讨论与对偶思想将环形选择转化为线性 DP，并分析非空约束下全负数组导致的边界错误与修正方法。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/1.png">
 <meta property="og:image" content="http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/2.jpg">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/5.png">
 <meta property="og:image" content="http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/6.jpg">
 <meta property="article:published_time" content="2025-11-03T07:00:00.000Z">
-<meta property="article:modified_time" content="2025-11-21T14:00:42.556Z">
+<meta property="article:modified_time" content="2026-05-17T14:50:18.466Z">
 <meta property="article:author" content="nine19een">
 <meta property="article:tag" content="动态规划">
 <meta property="article:tag" content="环形DP">
@@ -45,10 +45,10 @@
 <link rel="canonical" href="http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/","path":"2025/11/03/Luogu-P1121-CircularTwoSegmentSum/","title":"洛谷-P1121-环状最大两段子段和·复盘——续谈环形DP"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/11/03/Luogu-P1121-CircularTwoSegmentSum/","path":"2025/11/03/Luogu-P1121-CircularTwoSegmentSum/","title":"洛谷 P1121 复盘：环状最大两段子段和与环形 DP"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>洛谷-P1121-环状最大两段子段和·复盘——续谈环形DP | nine19een's Blog</title>
+<title>洛谷 P1121 复盘：环状最大两段子段和与环形 DP | nine19een's Blog</title>
   
 
 
@@ -144,7 +144,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -153,7 +153,7 @@
         <span class="site-state-item-name">分类</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">46</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -193,12 +193,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="洛谷-P1121-环状最大两段子段和·复盘——续谈环形DP | nine19een's Blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="name" content="洛谷 P1121 复盘：环状最大两段子段和与环形 DP | nine19een's Blog">
+      <meta itemprop="description" content="复盘洛谷 P1121 环状最大两段子段和问题，通过分类讨论与对偶思想将环形选择转化为线性 DP，并分析非空约束下全负数组导致的边界错误与修正方法。">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          洛谷-P1121-环状最大两段子段和·复盘——续谈环形DP
+          洛谷 P1121 复盘：环状最大两段子段和与环形 DP
         </h1>
 
         <div class="post-meta-container">
@@ -216,7 +216,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-11-21 22:00:42" itemprop="dateModified" datetime="2025-11-21T22:00:42+08:00">2025-11-21</time>
+      <time title="修改时间：2026-05-17 22:50:18" itemprop="dateModified" datetime="2026-05-17T22:50:18+08:00">2026-05-17</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -231,6 +231,7 @@
   
 </div>
 
+            <div class="post-description">复盘洛谷 P1121 环状最大两段子段和问题，通过分类讨论与对偶思想将环形选择转化为线性 DP，并分析非空约束下全负数组导致的边界错误与修正方法。</div>
         </div>
       </header>
 
@@ -350,13 +351,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2025/10/25/Luogu-P1133-FlowerGardenDP/" rel="prev" title="洛谷-P1133-教主的花园·复盘——从线性DP到环形DP">
-                  <i class="fa fa-angle-left"></i> 洛谷-P1133-教主的花园·复盘——从线性DP到环形DP
+                <a href="/2025/10/25/Luogu-P1133-FlowerGardenDP/" rel="prev" title="洛谷 P1133 复盘：从线性 DP 到破环成链">
+                  <i class="fa fa-angle-left"></i> 洛谷 P1133 复盘：从线性 DP 到破环成链
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2025/11/21/cf1065-xor/" rel="next" title="CF1065-C1&#x2F;C2·复盘——浅谈 XOR 与博弈中的最高有效位">
-                  CF1065-C1/C2·复盘——浅谈 XOR 与博弈中的最高有效位 <i class="fa fa-angle-right"></i>
+                <a href="/2025/11/21/cf1065-xor/" rel="next" title="Codeforces 1065-C1&#x2F;C2 复盘：XOR 博弈与最高有效位">
+                  Codeforces 1065-C1/C2 复盘：XOR 博弈与最高有效位 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
@@ -377,7 +378,7 @@
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa fa-heart"></i>
     </span>
